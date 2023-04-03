@@ -13,14 +13,34 @@ var (
 )
 
 type Device struct {
-	spi *spix.SPIX
+	spi        *spix.SPIX
+	controlReg register
 }
 
 // New creates a new AD9833 connection. The SPI bus must already be configured.
 func NewAD9833(spi *spix.SPIX) *Device {
 	return &Device{
-		spi: spi,
+		spi:        spi,
+		controlReg: register{value: 0},
 	}
+}
+
+func (d *Device) Init() {
+	d.controlReg.value = uint16(B28 | RESET)
+	d.spi.Transfer16(d.controlReg.value)
+
+	//set freq and phase to 0
+	d.spi.Transfer16(FREQ0) //LSB
+	d.spi.Transfer16(FREQ0) //MSB
+
+	d.spi.Transfer16(FREQ1) //LSB
+	d.spi.Transfer16(FREQ1) //MSB
+
+	d.spi.Transfer16(PHASE0)
+	d.spi.Transfer16(PHASE1)
+
+	d.controlReg.replaceBits(0, RESET)
+	d.spi.Transfer16(d.controlReg.value)
 }
 
 func (d *Device) SPIwrite(tx uint16) {
@@ -31,14 +51,14 @@ func (d *Device) SPIwrite(tx uint16) {
 	}
 }
 
-func (d *Device) SetFrequency(freq float64, register uint16) {
-	register = register & (FREQ0 | FREQ1)
-	freqReg := uint32(freq * math.Pow(2, 28) / 25e6)
+func (d *Device) SetFrequency(freq float64, freqReg uint16) {
+	freqReg = freqReg & (FREQ0 | FREQ1)
+	freqValue := uint32(freq * math.Pow(2, 28) / 25e6)
 	fmt.Printf("freqReg %x\n", freqReg)
-	fmt.Printf("Low %x\n", register|uint16(freqReg&BITS14L))
-	fmt.Printf("High %x\n", (register | uint16((freqReg&BITS14H)>>14)))
-	d.spi.Transfer16(register | uint16(freqReg&BITS14L))
-	d.spi.Transfer16(register | uint16((freqReg&BITS14H)>>14))
+	fmt.Printf("Low %x\n", freqReg|uint16(freqValue&BITS14L))
+	fmt.Printf("High %x\n", (freqReg | uint16((freqValue&BITS14H)>>14)))
+	d.spi.Transfer16(freqReg | uint16(freqValue&BITS14L))
+	d.spi.Transfer16(freqReg | uint16((freqValue&BITS14H)>>14))
 }
 
 func (d *Device) FreqTest() {
@@ -53,7 +73,7 @@ func (d *Device) FreqTest() {
 	//d.SPIwrite(0x2100)
 	d.SPIwrite(B28 | RESET)
 	//d.SPIwrite(0x50C7)
-	d.SPIwrite(FREQ0 | (BITS14L & 0x10C7))
+	d.SPIwrite(FREQ0 | uint16(BITS14L&0x10C7))
 	//d.SPIwrite(0x4000)
 	d.SPIwrite(FREQ0)
 	//d.SPIwrite(0xC000)

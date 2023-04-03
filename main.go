@@ -155,6 +155,7 @@ func main() {
 	spix.SetDatabits(16)
 
 	fgen = ad9833.NewAD9833(spix)
+	fgen.Init()
 
 	ConfigureScreen()
 
