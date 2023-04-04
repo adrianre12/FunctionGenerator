@@ -44,7 +44,7 @@ func (d *Device) Init() {
 }
 
 func (d *Device) SPIwrite(tx uint16) {
-	fmt.Printf("Writing: %v %x\n", tx, tx)
+	//fmt.Printf("Writing: %v %x\n", tx, tx)
 	_, err := d.spi.Transfer16(tx)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
@@ -52,13 +52,19 @@ func (d *Device) SPIwrite(tx uint16) {
 }
 
 func (d *Device) SetFrequency(freq float64, freqReg uint16) {
+	d.spi.Transfer16(d.controlReg.value)
 	freqReg = freqReg & (FREQ0 | FREQ1)
 	freqValue := uint32(freq * math.Pow(2, 28) / 25e6)
-	fmt.Printf("freqReg %x\n", freqReg)
-	fmt.Printf("Low %x\n", freqReg|uint16(freqValue&BITS14L))
-	fmt.Printf("High %x\n", (freqReg | uint16((freqValue&BITS14H)>>14)))
+	//fmt.Printf("freqReg %x\n", freqReg)
+	//fmt.Printf("Low %x\n", freqReg|uint16(freqValue&BITS14L))
+	//fmt.Printf("High %x\n", (freqReg | uint16((freqValue&BITS14H)>>14)))
 	d.spi.Transfer16(freqReg | uint16(freqValue&BITS14L))
 	d.spi.Transfer16(freqReg | uint16((freqValue&BITS14H)>>14))
+}
+
+func (d *Device) SetMode(mode Mode) {
+	d.controlReg.replaceBits(mode.Uint16(), MODE_MASK)
+	d.spi.Transfer16(d.controlReg.value)
 }
 
 func (d *Device) FreqTest() {

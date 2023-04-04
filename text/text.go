@@ -12,7 +12,7 @@ var (
 	BG = color.RGBA{0, 0, 0, 255}
 )
 
-type Text struct {
+type Label struct {
 	displayer drivers.Displayer
 	font      *tinyfont.Font
 	text      string
@@ -20,8 +20,8 @@ type Text struct {
 	Y         int16
 }
 
-func NewText(displayer drivers.Displayer, font *tinyfont.Font, x int16, y int16, text string) *Text {
-	t := Text{
+func NewLabel(displayer drivers.Displayer, font *tinyfont.Font, x int16, y int16, text string) *Label {
+	t := Label{
 		displayer: displayer,
 		font:      font,
 		X:         x,
@@ -31,7 +31,7 @@ func NewText(displayer drivers.Displayer, font *tinyfont.Font, x int16, y int16,
 	return &t
 }
 
-func (t *Text) Write(text string) {
+func (t *Label) Write(text string) {
 	if len(t.text) != 0 {
 		tinyfont.WriteLine(t.displayer, t.font, t.X, t.Y, t.text, BG)
 	}
@@ -39,6 +39,6 @@ func (t *Text) Write(text string) {
 	tinyfont.WriteLine(t.displayer, t.font, t.X, t.Y, t.text, FG)
 }
 
-func (t *Text) LineWidth() (innerWidth uint32, outboxWidth uint32) {
+func (t *Label) LineWidth() (innerWidth uint32, outboxWidth uint32) {
 	return tinyfont.LineWidth(t.font, t.text)
 }

@@ -17,8 +17,8 @@ var (
 	spi1      = machine.SPI1
 	LCDdevice *pcd8544.Device
 
-	rotaryPush     bool
-	rotaryValue    int
+	mode           ad9833.Mode
+	frequency      int
 	rotaryLastTime int64
 )
 
@@ -74,8 +74,12 @@ func SerialDelayStart(t int) {
 
 func ConfigureRotary() {
 	switches.SetupPush(machine.GP5, func(result bool) {
-		fmt.Println(result)
-		rotaryPush = result
+		if result { // ignore when pushed only use btn up
+			return
+		}
+		fmt.Println("Released")
+		mode = mode.Next()
+		fmt.Printf("Mode %s value %v \n", mode.String(), mode.Uint16())
 	})
 
 	switches.SetupRotary(machine.GP6, machine.GP7, func(result bool) {
@@ -97,11 +101,12 @@ func ConfigureRotary() {
 		default:
 		}
 		if result {
-			fmt.Println("up")
-			rotaryValue += increment
+			frequency += increment
 		} else {
-			fmt.Println("down")
-			rotaryValue -= increment
+			frequency -= increment
+		}
+		if frequency < 0 {
+			frequency = 0
 		}
 		rotaryLastTime = time.Now().UnixMilli()
 	})
@@ -111,25 +116,27 @@ func ConfigureScreen() {
 	ConfigureLCD()
 	font := &proggy.TinySZ8pt7b
 
-	label1 := text.NewText(LCDdevice, font, 0, 7, "Pushed ")
+	label1 := text.NewLabel(LCDdevice, font, 0, 7, "Mode ")
 	_, labelW := label1.LineWidth()
-	text1 := text.NewText(LCDdevice, font, int16(labelW), 7, fmt.Sprintf("%t", rotaryPush))
+	text1 := text.NewLabel(LCDdevice, font, int16(labelW), 7, fmt.Sprintf("%s", mode))
 
-	label2 := text.NewText(LCDdevice, font, 0, 18, "Value ")
+	label2 := text.NewLabel(LCDdevice, font, 0, 18, "Freq ")
 	_, labelW = label2.LineWidth()
-	text2 := text.NewText(LCDdevice, font, int16(labelW), 18, fmt.Sprintf("%d", rotaryValue))
+	text2 := text.NewLabel(LCDdevice, font, int16(labelW), 18, fmt.Sprintf("%d", frequency))
 	LCDdevice.Display()
 
 	//Refresh screen periodically in a ro routine
-	go func(t1 *text.Text, t2 *text.Text) {
+	go func(t1 *text.Label, t2 *text.Label) {
 		ticker := time.NewTicker(time.Millisecond * 250)
 
 		for range ticker.C {
-			t1.Write(fmt.Sprintf("%t", rotaryPush))
-			t2.Write(fmt.Sprintf("%d", rotaryValue))
+			t1.Write(fmt.Sprintf("%s", mode))
+			t2.Write(fmt.Sprintf("%d", frequency))
 			LCDdevice.Display()
 
-			fgen.SetFrequency(float64(rotaryValue), ad9833.FREQ0)
+			fgen.SetMode(mode)
+			fgen.SetFrequency(float64(frequency), ad9833.FREQ0)
+
 		}
 
 	}(text1, text2)
@@ -139,7 +146,7 @@ func ConfigureScreen() {
 var fgen *ad9833.Device
 
 func main() {
-	SerialDelayStart(5)
+	SerialDelayStart(3)
 	ConfigureRotary()
 
 	spix := spix.NewSPIX(machine.SPI0)
