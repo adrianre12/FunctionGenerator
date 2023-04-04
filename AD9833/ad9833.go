@@ -4,7 +4,6 @@ import (
 	"TinyGo/FunctionGenerator/spix"
 	"errors"
 	"fmt"
-	"math"
 )
 
 const SPITimeout = 10000 //10ms
@@ -15,6 +14,7 @@ var (
 type Device struct {
 	spi        *spix.SPIX
 	controlReg register
+	WriteErr   bool //Enable writing of errors to STDOUT
 }
 
 // New creates a new AD9833 connection. The SPI bus must already be configured.
@@ -27,63 +27,88 @@ func NewAD9833(spi *spix.SPIX) *Device {
 
 func (d *Device) Init() {
 	d.controlReg.value = uint16(B28 | RESET)
-	d.spi.Transfer16(d.controlReg.value)
+	d.Write(d.controlReg.value)
 
 	//set freq and phase to 0
-	d.spi.Transfer16(FREQ0) //LSB
-	d.spi.Transfer16(FREQ0) //MSB
+	d.Write(ADR_FREQ0) //LSB
+	d.Write(ADR_FREQ0) //MSB
 
-	d.spi.Transfer16(FREQ1) //LSB
-	d.spi.Transfer16(FREQ1) //MSB
+	d.Write(ADR_FREQ1) //LSB
+	d.Write(ADR_FREQ1) //MSB
 
-	d.spi.Transfer16(PHASE0)
-	d.spi.Transfer16(PHASE1)
+	d.Write(ADR_PHASE0)
+	d.Write(ADR_PHASE1)
 
 	d.controlReg.replaceBits(0, RESET)
-	d.spi.Transfer16(d.controlReg.value)
+	d.Write(d.controlReg.value)
 }
 
-func (d *Device) SPIwrite(tx uint16) {
-	//fmt.Printf("Writing: %v %x\n", tx, tx)
+// Write directly to the AD9833
+// If WriteErr is set, writes errors to STDOUT
+func (d *Device) Write(tx uint16) {
 	_, err := d.spi.Transfer16(tx)
-	if err != nil {
+	if d.WriteErr && err != nil {
 		fmt.Printf("Error: %v\n", err)
 	}
 }
 
-func (d *Device) SetFrequency(freq float64, freqReg uint16) {
-	d.spi.Transfer16(d.controlReg.value)
-	freqReg = freqReg & (FREQ0 | FREQ1)
-	freqValue := uint32(freq * math.Pow(2, 28) / 25e6)
-	//fmt.Printf("freqReg %x\n", freqReg)
-	//fmt.Printf("Low %x\n", freqReg|uint16(freqValue&BITS14L))
-	//fmt.Printf("High %x\n", (freqReg | uint16((freqValue&BITS14H)>>14)))
-	d.spi.Transfer16(freqReg | uint16(freqValue&BITS14L))
-	d.spi.Transfer16(freqReg | uint16((freqValue&BITS14H)>>14))
+// Set the sleep mode
+// e.g. Sleep(SLEEPDAC) to disable the DAC
+func (d *Device) Sleep(mode uint16) {
+	d.controlReg.replaceBits(mode, SLEEP1|SLEEP12)
 }
 
+// Select which frequency register is used.
+// FREQ0 enable = false
+// FREQ1 enable = true
+func (d *Device) EnableFREQ1(enable bool) {
+	if enable {
+		d.controlReg.replaceBits(FSELECT, FSELECT)
+	} else {
+		d.controlReg.replaceBits(0, FSELECT)
+	}
+	d.Write(d.controlReg.value)
+}
+
+// Select which phase register is used.
+// PHASE0 enable = false
+// PHASE1 enable = true
+func (d *Device) EnablePHASE1(enable bool) {
+	if enable {
+		d.controlReg.replaceBits(PSELECT, PSELECT)
+	} else {
+		d.controlReg.replaceBits(0, PSELECT)
+	}
+	d.Write(d.controlReg.value)
+}
+
+// Set the selected frequency register in Hz
+// FREQ register MSB and LSB are set using B28
+// e.g. SetFrequency(1000.0,ADR_FREQ0)
+func (d *Device) SetFrequency(freq float64, freqReg uint16) {
+	d.Write(d.controlReg.value & B28)
+	freqReg = freqReg & (ADR_FREQ0 | ADR_FREQ1)
+	//freqValue := uint32(freq * math.Pow(2, 28) / 25e6)
+	freqValue := uint32(freq * 0x10000000 / 25000000)
+
+	d.Write(freqReg | uint16(freqValue&BITS14L))
+	d.Write(freqReg | uint16((freqValue&BITS14H)>>14))
+}
+
+// Set the selected phase register in degrees or radians
+// e.g. SetPhase(90.0, ADR_PHASE0, false)
+func (d *Device) SetPhase(phase float32, phaseReg uint16, radians bool) {
+	phaseReg = phaseReg & (ADR_PHASE0 | ADR_PHASE1)
+	if !radians {
+		phase = phase * 2 * 3.1415926 / 360
+	}
+	phaseValue := uint16(phase / 4096)
+	d.Write(phaseReg | (phaseValue & BITS12))
+}
+
+// Set the output waveform mode using the Mode enum
+// SetMode(Mode_TRI)
 func (d *Device) SetMode(mode Mode) {
 	d.controlReg.replaceBits(mode.Uint16(), MODE_MASK)
-	d.spi.Transfer16(d.controlReg.value)
-}
-
-func (d *Device) FreqTest() {
-	/* From document AN-1070
-	   0x2100 0010 0001 0000 0000
-	   0x50C7 0101 0000 1100 0111
-	   0x4000 0100 0000 0000 0000
-	   0xC000 1100 0000 0000 0000
-	   0x2000 0010 0000 0000 0000
-	*/
-	fmt.Println("freqTest")
-	//d.SPIwrite(0x2100)
-	d.SPIwrite(B28 | RESET)
-	//d.SPIwrite(0x50C7)
-	d.SPIwrite(FREQ0 | uint16(BITS14L&0x10C7))
-	//d.SPIwrite(0x4000)
-	d.SPIwrite(FREQ0)
-	//d.SPIwrite(0xC000)
-	d.SPIwrite(PHASE0)
-	//d.SPIwrite(0x2000)
-	d.SPIwrite(B28)
+	d.Write(d.controlReg.value)
 }

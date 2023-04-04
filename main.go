@@ -135,7 +135,7 @@ func ConfigureScreen() {
 			LCDdevice.Display()
 
 			fgen.SetMode(mode)
-			fgen.SetFrequency(float64(frequency), ad9833.FREQ0)
+			fgen.SetFrequency(float64(frequency), ad9833.ADR_FREQ0)
 
 		}
 
