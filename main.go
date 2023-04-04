@@ -19,22 +19,11 @@ var (
 
 	mode           ad9833.Mode
 	frequency      int
+	changed        bool
 	rotaryLastTime int64
 )
 
 var spi0 = machine.SPI0
-
-func ConfigureSPI0() {
-	spi0.Configure(machine.SPIConfig{
-		Frequency: 100000,
-		LSBFirst:  false,
-		Mode:      2,
-		DataBits:  16,
-		SCK:       machine.GP18,
-		SDO:       machine.GP19,
-	})
-	machine.GP17.Configure(machine.PinConfig{Mode: machine.PinSPI})
-}
 
 func ConfigureLCD() {
 
@@ -79,6 +68,7 @@ func ConfigureRotary() {
 		}
 		fmt.Println("Released")
 		mode = mode.Next()
+		changed = true
 		fmt.Printf("Mode %s value %v \n", mode.String(), mode.Uint16())
 	})
 
@@ -108,6 +98,7 @@ func ConfigureRotary() {
 		if frequency < 0 {
 			frequency = 0
 		}
+		changed = true
 		rotaryLastTime = time.Now().UnixMilli()
 	})
 }
@@ -134,9 +125,13 @@ func ConfigureScreen() {
 			t2.Write(fmt.Sprintf("%d", frequency))
 			LCDdevice.Display()
 
-			fgen.SetMode(mode)
-			fgen.SetFrequency(float64(frequency), ad9833.ADR_FREQ0)
+			fmt.Printf("changed=%t\n", changed)
 
+			if changed {
+				fgen.SetMode(mode)
+				fgen.SetFrequency(float64(frequency), ad9833.ADR_FREQ0)
+				changed = false
+			}
 		}
 
 	}(text1, text2)
@@ -163,9 +158,17 @@ func main() {
 
 	fgen = ad9833.NewAD9833(spix)
 	fgen.Init()
+	fgen.WriteErr = false
 
 	ConfigureScreen()
 
-	//fgen.FreqTest()
+	fgen.SweepStart = 100
+	fgen.SweepEnd = 10000
+	fgen.SweepStep = 1
+	fgen.SweepStepTime = 10
+	fgen.SweepGate = true
+
+	fgen.StartSweep()
+
 	select {}
 }
