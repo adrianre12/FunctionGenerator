@@ -87,7 +87,7 @@ func (d *Device) EnablePHASE1(enable bool) {
 // FREQ register MSB and LSB are set using B28
 // e.g. SetFrequency(1000.0,ADR_FREQ0)
 func (d *Device) SetFrequency(freq float32, freqReg uint16) float32 {
-	d.Write(d.controlReg.value & B28)
+	d.Write(d.controlReg.value | B28)
 	freqReg = freqReg & (ADR_FREQ0 | ADR_FREQ1)
 	//freqValue := uint32(freq * math.Pow(2, 28) / 25e6)
 	//freqValue := uint32(freq * 0x10000000 / 25000000)
