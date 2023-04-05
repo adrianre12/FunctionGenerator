@@ -14,9 +14,12 @@ import (
 )
 
 var (
+	spi0      = machine.SPI0
 	spi1      = machine.SPI1
 	LCDdevice *pcd8544.Device
 	fgen      *ad9833.Device
+	pwm0      = machine.PWM0
+	pwm0A     uint8
 
 	mode           ad9833.Mode
 	frequency      float32
@@ -29,8 +32,6 @@ var (
 	sweepStepTime uint16  //Target duration of each step mS
 	sweepGate     bool    //If set the output will be off while not sweeping.
 )
-
-var spi0 = machine.SPI0
 
 func ConfigureLCD() {
 
@@ -146,10 +147,36 @@ func ConfigureScreen() {
 
 }
 
+func ConfigurePWM() {
+	err := pwm0.Configure(machine.PWMConfig{
+		Period: 100000,
+	})
+	if err != nil {
+		println("failed to configure PWM")
+		return
+	}
+
+	if err != nil {
+		println("failed to configure channel A")
+		return
+	}
+
+	pwm0A, err = pwm0.Channel(machine.GPIO0)
+	pwm0.Set(pwm0A, 0)
+}
+
+func setPWM(ratio float32) {
+	pwm0.Set(pwm0A, uint32(ratio*float32(pwm0.Top())))
+}
+
 // crude sweep
 func StartSweep() {
+	steps := (sweepEnd - sweepStart) / sweepStep
+	var step float32 = 0
 	for f := sweepStart; f <= sweepEnd; f += sweepStep {
 		//fmt.Println(f)
+		step++
+		setPWM(step / steps)
 		frequency = fgen.SetFrequency(f, ad9833.ADR_FREQ0)
 		time.Sleep(time.Millisecond * time.Duration(sweepStepTime))
 	}
@@ -159,7 +186,7 @@ func StartSweep() {
 }
 
 func main() {
-	SerialDelayStart(3)
+	SerialDelayStart(5)
 	ConfigureRotary()
 
 	spix := spix.NewSPIX(machine.SPI0)
@@ -179,10 +206,41 @@ func main() {
 	fgen.WriteErr = false
 
 	ConfigureScreen()
+	ConfigurePWM()
 
 	sweepTest()
+	//pwmTest()
 
 	select {}
+}
+
+func pwmTest() {
+	pwm := machine.PWM0
+
+	err := pwm.Configure(machine.PWMConfig{
+		Period: 100000,
+	})
+	if err != nil {
+		println("failed to configure PWM")
+		return
+	}
+
+	println("period=", pwm.Period())
+	// The top value is the highest value that can be passed to PWMChannel.Set.
+	// It is usually an even number.
+	println("top:", pwm.Top())
+
+	// Configure the two channels we'll use as outputs.
+	channelA, err := pwm.Channel(machine.GPIO0)
+	if err != nil {
+		println("failed to configure channel A")
+		return
+	}
+
+	pwm.Set(channelA, pwm.Top()/2)
+
+	fmt.Printf("DIV = %x\n", pwm.DIV.Get())
+	fmt.Printf("cpuFreq=%d\n", machine.CPUFrequency())
 }
 
 func sweepTest() {
