@@ -16,9 +16,9 @@ type Device struct {
 	spi           *spix.SPIX
 	controlReg    register
 	WriteErr      bool    //Enable writing of errors to STDOUT
-	SweepStart    float64 //Sweep start frequency Hz
-	SweepEnd      float64 //Sweep end frequency Hz
-	SweepStep     float64 //Sweep step size Hz
+	SweepStart    float32 //Sweep start frequency Hz
+	SweepEnd      float32 //Sweep end frequency Hz
+	SweepStep     float32 //Sweep step size Hz
 	SweepStepTime uint16  //Target duration of each step mS
 	SweepGate     bool    //If set the output will be off while not sweeping.
 }
@@ -89,16 +89,19 @@ func (d *Device) EnablePHASE1(enable bool) {
 }
 
 // Set the selected frequency register in Hz
+// returns the actual frequency set.
 // FREQ register MSB and LSB are set using B28
 // e.g. SetFrequency(1000.0,ADR_FREQ0)
-func (d *Device) SetFrequency(freq float64, freqReg uint16) {
+func (d *Device) SetFrequency(freq float32, freqReg uint16) float32 {
 	d.Write(d.controlReg.value & B28)
 	freqReg = freqReg & (ADR_FREQ0 | ADR_FREQ1)
 	//freqValue := uint32(freq * math.Pow(2, 28) / 25e6)
-	freqValue := uint32(freq * 0x10000000 / 25000000)
+	//freqValue := uint32(freq * 0x10000000 / 25000000)
+	freqValue := uint32(freq*10.73741824 + 0.5) //round up to make more acurate
 
 	d.Write(freqReg | uint16(freqValue&BITS14L))
 	d.Write(freqReg | uint16((freqValue&BITS14H)>>14))
+	return float32(freqValue) / 10.73741824
 }
 
 // Set the selected phase register in degrees or radians

@@ -18,7 +18,7 @@ var (
 	LCDdevice *pcd8544.Device
 
 	mode           ad9833.Mode
-	frequency      int
+	frequency      float32
 	changed        bool
 	rotaryLastTime int64
 )
@@ -74,7 +74,7 @@ func ConfigureRotary() {
 
 	switches.SetupRotary(machine.GP6, machine.GP7, func(result bool) {
 		delta := time.Now().UnixMilli() - rotaryLastTime
-		increment := 1
+		var increment float32
 		switch {
 		case delta < 25:
 			{
@@ -89,6 +89,9 @@ func ConfigureRotary() {
 				increment = 5
 			}
 		default:
+			{
+				increment = 1
+			}
 		}
 		if result {
 			frequency += increment
@@ -121,17 +124,15 @@ func ConfigureScreen() {
 		ticker := time.NewTicker(time.Millisecond * 250)
 
 		for range ticker.C {
-			t1.Write(fmt.Sprintf("%s", mode))
-			t2.Write(fmt.Sprintf("%d", frequency))
-			LCDdevice.Display()
-
-			fmt.Printf("changed=%t\n", changed)
-
 			if changed {
 				fgen.SetMode(mode)
-				fgen.SetFrequency(float64(frequency), ad9833.ADR_FREQ0)
+				frequency = fgen.SetFrequency(frequency, ad9833.ADR_FREQ0)
 				changed = false
 			}
+
+			t1.Write(fmt.Sprintf("%s", mode))
+			t2.Write(fmt.Sprintf("%.3f", frequency))
+			LCDdevice.Display()
 		}
 
 	}(text1, text2)
@@ -162,6 +163,12 @@ func main() {
 
 	ConfigureScreen()
 
+	sweepTest()
+
+	select {}
+}
+
+func sweepTest() {
 	fgen.SweepStart = 100
 	fgen.SweepEnd = 10000
 	fgen.SweepStep = 1
@@ -169,6 +176,4 @@ func main() {
 	fgen.SweepGate = true
 
 	fgen.StartSweep()
-
-	select {}
 }
