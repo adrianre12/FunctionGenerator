@@ -4,7 +4,6 @@ import (
 	"TinyGo/FunctionGenerator/spix"
 	"errors"
 	"fmt"
-	"time"
 )
 
 const SPITimeout = 10000 //10ms
@@ -13,14 +12,9 @@ var (
 )
 
 type Device struct {
-	spi           *spix.SPIX
-	controlReg    register
-	WriteErr      bool    //Enable writing of errors to STDOUT
-	SweepStart    float32 //Sweep start frequency Hz
-	SweepEnd      float32 //Sweep end frequency Hz
-	SweepStep     float32 //Sweep step size Hz
-	SweepStepTime uint16  //Target duration of each step mS
-	SweepGate     bool    //If set the output will be off while not sweeping.
+	spi        *spix.SPIX
+	controlReg register
+	WriteErr   bool //Enable writing of errors to STDOUT
 }
 
 // New creates a new AD9833 connection. The SPI bus must already be configured.
@@ -120,16 +114,4 @@ func (d *Device) SetPhase(phase float32, phaseReg uint16, radians bool) {
 func (d *Device) SetMode(mode Mode) {
 	d.controlReg.replaceBits(mode.Uint16(), MODE_MASK)
 	d.Write(d.controlReg.value)
-}
-
-// crude sweep
-func (d *Device) StartSweep() {
-	for f := d.SweepStart; f <= d.SweepEnd; f += d.SweepStep {
-		fmt.Println(f)
-		d.SetFrequency(f, ADR_FREQ0)
-		time.Sleep(time.Millisecond * time.Duration(d.SweepStepTime))
-	}
-	if d.SweepGate {
-		d.SetFrequency(0, ADR_FREQ0)
-	}
 }

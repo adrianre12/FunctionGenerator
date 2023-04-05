@@ -16,11 +16,18 @@ import (
 var (
 	spi1      = machine.SPI1
 	LCDdevice *pcd8544.Device
+	fgen      *ad9833.Device
 
 	mode           ad9833.Mode
 	frequency      float32
 	changed        bool
 	rotaryLastTime int64
+
+	sweepStart    float32 //Sweep start frequency Hz
+	sweepEnd      float32 //Sweep end frequency Hz
+	sweepStep     float32 //Sweep step size Hz
+	sweepStepTime uint16  //Target duration of each step mS
+	sweepGate     bool    //If set the output will be off while not sweeping.
 )
 
 var spi0 = machine.SPI0
@@ -139,7 +146,17 @@ func ConfigureScreen() {
 
 }
 
-var fgen *ad9833.Device
+// crude sweep
+func StartSweep() {
+	for f := sweepStart; f <= sweepEnd; f += sweepStep {
+		//fmt.Println(f)
+		frequency = fgen.SetFrequency(f, ad9833.ADR_FREQ0)
+		time.Sleep(time.Millisecond * time.Duration(sweepStepTime))
+	}
+	if sweepGate {
+		frequency = fgen.SetFrequency(0, ad9833.ADR_FREQ0)
+	}
+}
 
 func main() {
 	SerialDelayStart(3)
@@ -169,11 +186,11 @@ func main() {
 }
 
 func sweepTest() {
-	fgen.SweepStart = 100
-	fgen.SweepEnd = 10000
-	fgen.SweepStep = 1
-	fgen.SweepStepTime = 10
-	fgen.SweepGate = true
+	sweepStart = 100
+	sweepEnd = 1000
+	sweepStep = 1
+	sweepStepTime = 10
+	sweepGate = true
 
-	fgen.StartSweep()
+	StartSweep()
 }
