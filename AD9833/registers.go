@@ -1,7 +1,5 @@
 package ad9833
 
-import "fmt"
-
 const (
 	B28     uint16 = 0x2000 //D13 0x2000
 	HLB     uint16 = 0x1000 //D12 0x1000
@@ -90,12 +88,9 @@ func (m Mode) Uint16() (value uint16) {
 
 func (m Mode) Next() (next Mode) {
 	next = m + 1
-	fmt.Printf("m=%d next=%d", uint8(m), uint8(next))
-
 	if m >= 2 {
 		next = 0
 	}
-	fmt.Printf(" Set=%d\n", uint8(next))
 	return next
 }
 
