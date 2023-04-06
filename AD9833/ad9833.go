@@ -2,13 +2,7 @@ package ad9833
 
 import (
 	"TinyGo/FunctionGenerator/spix"
-	"errors"
 	"fmt"
-)
-
-const SPITimeout = 10000 //10ms
-var (
-	ErrSPITimeout = errors.New("SPI timeout")
 )
 
 type Device struct {
