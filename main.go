@@ -21,7 +21,7 @@ var (
 	pwm0      = machine.PWM0
 	pwm0A     uint8
 
-	mode           ad9833.Mode
+	waveform       ad9833.Mode
 	frequency      float32
 	changed        bool
 	rotaryLastTime int64
@@ -70,14 +70,15 @@ func SerialDelayStart(t int) {
 }
 
 func ConfigureRotary() {
-	switches.SetupPush(machine.GP5, func(result bool) {
-		if result { // ignore when pushed only use btn up
+	switches.SetupPush(machine.GP5, 1000, func(result bool) {
+		fmt.Printf("Released %t\n", result)
+		if result {
+			fmt.Println("long press")
 			return
 		}
-		fmt.Println("Released")
-		mode = mode.Next()
+
+		waveform = waveform.Next()
 		changed = true
-		fmt.Printf("Mode %s value %v \n", mode.String(), mode.Uint16())
 	})
 
 	switches.SetupRotary(machine.GP6, machine.GP7, func(result bool) {
@@ -118,13 +119,13 @@ func ConfigureScreen() {
 	ConfigureLCD()
 	font := &proggy.TinySZ8pt7b
 
-	label1 := text.NewLabel(LCDdevice, font, 0, 7, "Mode ")
+	label1 := text.NewLabel(LCDdevice, font, 0, 7, "Wave ")
 	_, labelW := label1.LineWidth()
-	text1 := text.NewLabel(LCDdevice, font, int16(labelW), 7, fmt.Sprintf("%s", mode))
+	text1 := text.NewLabel(LCDdevice, font, int16(labelW), 7, fmt.Sprintf("%s", waveform))
 
 	label2 := text.NewLabel(LCDdevice, font, 0, 18, "Freq ")
 	_, labelW = label2.LineWidth()
-	text2 := text.NewLabel(LCDdevice, font, int16(labelW), 18, fmt.Sprintf("%d", frequency))
+	text2 := text.NewLabel(LCDdevice, font, int16(labelW), 18, fmt.Sprintf("%f", frequency))
 	LCDdevice.Display()
 
 	//Refresh screen periodically in a ro routine
@@ -133,12 +134,12 @@ func ConfigureScreen() {
 
 		for range ticker.C {
 			if changed {
-				fgen.SetMode(mode)
+				fgen.SetMode(waveform)
 				frequency = fgen.SetFrequency(frequency, ad9833.ADR_FREQ0)
 				changed = false
 			}
 
-			t1.Write(fmt.Sprintf("%s", mode))
+			t1.Write(fmt.Sprintf("%s", waveform))
 			t2.Write(fmt.Sprintf("%.3f", frequency))
 			LCDdevice.Display()
 		}
