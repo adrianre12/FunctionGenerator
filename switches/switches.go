@@ -21,6 +21,7 @@ const (
 // longPress how long the button press and release is in ms
 // callback is the function called on button release, if it was a long press result = true
 // The button is enabled by defult.
+// func SetupPush(pin machine.Pin, longPress uint32, callback func(result bool)) (pushButton *PushButton) {
 func SetupPush(pin machine.Pin, longPress uint32, callback Callback) (pushButton *PushButton) {
 	pushButton = &PushButton{
 		LongPress: longPress,

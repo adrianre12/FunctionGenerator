@@ -72,7 +72,7 @@ func StartSweep() {
 
 func main() {
 	SerialDelayStart(5)
-	ConfigureRotary()
+	ConfigureKeyboard()
 
 	spix := spix.NewSPIX(machine.SPI0)
 	spix.Configure(machine.SPIConfig{
@@ -94,6 +94,7 @@ func main() {
 	ConfigurePWM()
 
 	sweepTest()
+
 	//pwmTest()
 
 	select {}
