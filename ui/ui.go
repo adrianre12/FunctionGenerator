@@ -34,8 +34,8 @@ var (
 
 	rotaryLastTime int64
 	screen         Screen
-	screenMenu     *ScreenMenu
-	screen1        Screen1
+	Menu           *ScreenMenu
+	Manual         *ScreenManual
 )
 
 func Configure(frequencyGen *ad9833.Device) {
@@ -45,10 +45,10 @@ func Configure(frequencyGen *ad9833.Device) {
 }
 
 func configureScreen() {
-	screenMenu = &ScreenMenu{}
-	screen1 = Screen1{}
+	Menu = &ScreenMenu{}
+	Manual = &ScreenManual{}
 
-	screen = screenMenu // inital screen
+	screen = Menu // inital screen
 	setupLCD()
 
 	screen.Setup()
@@ -101,13 +101,4 @@ func setupLCD() {
 	lcdDevice.SendCommand(pcd8544.SETBIAS | 0x04)
 	lcd = lcdDevice //use Device interface for the rest so the lcd device can be changed.
 	lcd.ClearDisplay()
-}
-
-func TestFlash() {
-	for {
-		println("testflash")
-		time.Sleep(time.Second)
-		screenMenu.Text2.Invert = !screenMenu.Text2.Invert
-		println(screenMenu.Text2.Invert)
-	}
 }

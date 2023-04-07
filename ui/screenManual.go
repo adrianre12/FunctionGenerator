@@ -11,12 +11,12 @@ import (
 
 var ()
 
-type Screen1 struct {
+type ScreenManual struct {
 	text1 *text.Label
 	text2 *text.Label
 }
 
-func (s *Screen1) Setup() {
+func (s *ScreenManual) Setup() {
 	font := &proggy.TinySZ8pt7b
 	lcd.ClearBuffer()
 
@@ -29,7 +29,7 @@ func (s *Screen1) Setup() {
 	s.text2 = text.NewLabel(lcd, font, int16(labelW), 18, fmt.Sprintf("%f", Frequency))
 }
 
-func (s *Screen1) Update() {
+func (s *ScreenManual) Update() {
 	if Changed {
 		fgen.SetMode(Waveform)
 		Frequency = fgen.SetFrequency(Frequency, ad9833.ADR_FREQ0)
@@ -40,7 +40,7 @@ func (s *Screen1) Update() {
 	s.text2.Write(fmt.Sprintf("%.3f", Frequency))
 }
 
-func (s *Screen1) Push(result bool) {
+func (s *ScreenManual) Push(result bool) {
 	fmt.Printf("Released %t\n", result)
 	if result {
 		fmt.Println("long press")
@@ -51,7 +51,7 @@ func (s *Screen1) Push(result bool) {
 	Changed = true
 }
 
-func (s *Screen1) Rotate(result bool) {
+func (s *ScreenManual) Rotate(result bool) {
 	delta := time.Now().UnixMilli() - rotaryLastTime
 	var increment float32
 	switch {
