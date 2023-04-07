@@ -1,7 +1,7 @@
 package main
 
 import (
-	ad9833 "TinyGo/FunctionGenerator/AD9833"
+	"TinyGo/FunctionGenerator/ad9833"
 	"TinyGo/FunctionGenerator/spix"
 	"TinyGo/FunctionGenerator/ui"
 	"fmt"

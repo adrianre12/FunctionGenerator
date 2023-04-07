@@ -1,9 +1,10 @@
 package ui
 
 import (
-	ad9833 "TinyGo/FunctionGenerator/AD9833"
-	text "TinyGo/FunctionGenerator/Text"
+	"TinyGo/FunctionGenerator/ad9833"
+	"TinyGo/FunctionGenerator/text"
 	"fmt"
+
 	"time"
 
 	"tinygo.org/x/tinyfont/proggy"
@@ -24,9 +25,9 @@ func (s *ScreenManual) Setup() {
 	_, labelW := label1.LineWidth()
 	s.text1 = text.NewLabel(lcd, font, int16(labelW), 7, fmt.Sprintf("%s", Waveform))
 
-	label2 := text.NewLabel(lcd, font, 0, 18, "Freq: ")
+	label2 := text.NewLabel(lcd, font, 0, 17, "Freq: ")
 	_, labelW = label2.LineWidth()
-	s.text2 = text.NewLabel(lcd, font, int16(labelW), 18, fmt.Sprintf("%f", Frequency))
+	s.text2 = text.NewLabel(lcd, font, int16(labelW), 17, fmt.Sprintf("%f", Frequency))
 }
 
 func (s *ScreenManual) Update() {

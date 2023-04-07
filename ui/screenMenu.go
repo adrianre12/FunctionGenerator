@@ -1,7 +1,7 @@
 package ui
 
 import (
-	text "TinyGo/FunctionGenerator/Text"
+	"TinyGo/FunctionGenerator/text"
 	"fmt"
 
 	"tinygo.org/x/tinyfont/proggy"
@@ -23,20 +23,19 @@ func (s *ScreenMenu) Setup() {
 
 	s.selectedLine = 1
 
-	label1 := text.NewLabel(lcd, font, 0, 7, "Line1 ")
-	_, labelW := label1.LineWidth()
-	s.Text1 = text.NewLabel(lcd, font, int16(labelW), 7, fmt.Sprintf("%s", ""))
+	text.NewLabel(lcd, font, 0, 7, "Mode")
+	s.Text1 = text.NewLabel(lcd, font, 0, 17, fmt.Sprintf("%s", ""))
+	s.Text2 = text.NewLabel(lcd, font, 0, 27, fmt.Sprintf("%s", ""))
+	//text.NewLabel(lcd, font, 0, 37, "37th Line")
+	//text.NewLabel(lcd, font, 0, 47, "01234567890123")
 
-	label2 := text.NewLabel(lcd, font, 0, 18, "Line2 ")
-	_, labelW = label2.LineWidth()
-	s.Text2 = text.NewLabel(lcd, font, int16(labelW), 18, fmt.Sprintf("%s", ""))
 }
 
 func (s *ScreenMenu) Update() {
 	s.Text1.Invert = s.selectedLine == 1
 	s.Text2.Invert = s.selectedLine == 2
-	s.Text1.Write(fmt.Sprintf("%s", "entry1"))
-	s.Text2.Write(fmt.Sprintf("%s", "entry2"))
+	s.Text1.Write(fmt.Sprintf("%s", "Manual"))
+	s.Text2.Write(fmt.Sprintf("%s", "Sweep"))
 }
 
 func (s *ScreenMenu) Push(result bool) {
