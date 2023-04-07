@@ -3,20 +3,18 @@ package main
 import (
 	ad9833 "TinyGo/FunctionGenerator/AD9833"
 	"TinyGo/FunctionGenerator/spix"
+	"TinyGo/FunctionGenerator/ui"
 	"fmt"
 	"machine"
 	"time"
 )
 
 var (
-	spi0  = machine.SPI0
-	spi1  = machine.SPI1
+	spi0 = machine.SPI0
+
 	fgen  *ad9833.Device
 	pwm0  = machine.PWM0
 	pwm0A uint8
-
-	waveform  ad9833.Mode
-	frequency float32
 
 	sweepStart    float32 //Sweep start frequency Hz
 	sweepEnd      float32 //Sweep end frequency Hz
@@ -62,17 +60,16 @@ func StartSweep() {
 		//fmt.Println(f)
 		step++
 		setPWM(step / steps)
-		frequency = fgen.SetFrequency(f, ad9833.ADR_FREQ0)
+		ui.Frequency = fgen.SetFrequency(f, ad9833.ADR_FREQ0)
 		time.Sleep(time.Millisecond * time.Duration(sweepStepTime))
 	}
 	if sweepGate {
-		frequency = fgen.SetFrequency(0, ad9833.ADR_FREQ0)
+		ui.Frequency = fgen.SetFrequency(0, ad9833.ADR_FREQ0)
 	}
 }
 
 func main() {
 	SerialDelayStart(5)
-	ConfigureKeyboard()
 
 	spix := spix.NewSPIX(machine.SPI0)
 	spix.Configure(machine.SPIConfig{
@@ -90,10 +87,13 @@ func main() {
 	fgen.Init()
 	fgen.WriteErr = false
 
-	ConfigureScreen()
+	ui.Configure(fgen)
 	ConfigurePWM()
 
-	sweepTest()
+	println("Running")
+	ui.TestFlash()
+
+	//sweepTest()
 
 	//pwmTest()
 

@@ -1,4 +1,4 @@
-package main
+package ui
 
 import (
 	ad9833 "TinyGo/FunctionGenerator/AD9833"
@@ -8,6 +8,8 @@ import (
 
 	"tinygo.org/x/tinyfont/proggy"
 )
+
+var ()
 
 type Screen1 struct {
 	text1 *text.Label
@@ -20,22 +22,22 @@ func (s *Screen1) Setup() {
 
 	label1 := text.NewLabel(lcd, font, 0, 7, "Wave: ")
 	_, labelW := label1.LineWidth()
-	s.text1 = text.NewLabel(lcd, font, int16(labelW), 7, fmt.Sprintf("%s", waveform))
+	s.text1 = text.NewLabel(lcd, font, int16(labelW), 7, fmt.Sprintf("%s", Waveform))
 
 	label2 := text.NewLabel(lcd, font, 0, 18, "Freq: ")
 	_, labelW = label2.LineWidth()
-	s.text2 = text.NewLabel(lcd, font, int16(labelW), 18, fmt.Sprintf("%f", frequency))
+	s.text2 = text.NewLabel(lcd, font, int16(labelW), 18, fmt.Sprintf("%f", Frequency))
 }
 
 func (s *Screen1) Update() {
-	if changed {
-		fgen.SetMode(waveform)
-		frequency = fgen.SetFrequency(frequency, ad9833.ADR_FREQ0)
-		changed = false
+	if Changed {
+		fgen.SetMode(Waveform)
+		Frequency = fgen.SetFrequency(Frequency, ad9833.ADR_FREQ0)
+		Changed = false
 	}
 
-	s.text1.Write(fmt.Sprintf("%s", waveform))
-	s.text2.Write(fmt.Sprintf("%.3f", frequency))
+	s.text1.Write(fmt.Sprintf("%s", Waveform))
+	s.text2.Write(fmt.Sprintf("%.3f", Frequency))
 }
 
 func (s *Screen1) Push(result bool) {
@@ -45,8 +47,8 @@ func (s *Screen1) Push(result bool) {
 		return
 	}
 
-	waveform = waveform.Next()
-	changed = true
+	Waveform = Waveform.Next()
+	Changed = true
 }
 
 func (s *Screen1) Rotate(result bool) {
@@ -71,13 +73,13 @@ func (s *Screen1) Rotate(result bool) {
 		}
 	}
 	if result {
-		frequency += increment
+		Frequency += increment
 	} else {
-		frequency -= increment
+		Frequency -= increment
 	}
-	if frequency < 0 {
-		frequency = 0
+	if Frequency < 0 {
+		Frequency = 0
 	}
-	changed = true
+	Changed = true
 	rotaryLastTime = time.Now().UnixMilli()
 }
