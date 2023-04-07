@@ -32,10 +32,11 @@ var (
 	Frequency float32
 	Changed   bool
 
-	rotaryLastTime int64
-	screen         Screen
-	Menu           *ScreenMenu
-	Manual         *ScreenManual
+	rotaryLastTime  int64
+	nextScreen      Screen
+	displayedScreen Screen
+	Menu            *ScreenMenu
+	Manual          *ScreenManual
 )
 
 func Configure(frequencyGen *ad9833.Device) {
@@ -47,11 +48,11 @@ func Configure(frequencyGen *ad9833.Device) {
 func configureScreen() {
 	Menu = &ScreenMenu{}
 	Manual = &ScreenManual{}
-
-	screen = Menu // inital screen
+	nextScreen = nil
+	displayedScreen = Menu // inital screen
 	setupLCD()
 
-	screen.Setup()
+	displayedScreen.Setup()
 	lcd.Display()
 
 	//Refresh screen periodically in a go routine
@@ -60,7 +61,12 @@ func configureScreen() {
 		ticker := time.NewTicker(time.Millisecond * 250)
 
 		for range ticker.C {
-			screen.Update()
+			if nextScreen != nil {
+				displayedScreen = nextScreen
+				nextScreen = nil
+				displayedScreen.Setup()
+			}
+			displayedScreen.Update()
 			lcd.Display()
 		}
 
@@ -70,11 +76,11 @@ func configureScreen() {
 
 func configureKeyboard() {
 	switches.SetupPush(machine.GP5, 1000, func(result bool) {
-		screen.Push(result) //have to do it via this func to avoid runtime panic
+		displayedScreen.Push(result) //have to do it via this func to avoid runtime panic
 	})
 
 	switches.SetupRotary(machine.GP6, machine.GP7, func(result bool) {
-		screen.Rotate(result) //have to do it via this func to avoid runtime panic
+		displayedScreen.Rotate(result) //have to do it via this func to avoid runtime panic
 	})
 }
 
@@ -101,4 +107,8 @@ func setupLCD() {
 	lcdDevice.SendCommand(pcd8544.SETBIAS | 0x04)
 	lcd = lcdDevice //use Device interface for the rest so the lcd device can be changed.
 	lcd.ClearDisplay()
+}
+
+func ChangeScreen(screen Screen) {
+	nextScreen = screen
 }

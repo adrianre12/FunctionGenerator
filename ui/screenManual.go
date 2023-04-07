@@ -43,7 +43,7 @@ func (s *ScreenManual) Update() {
 func (s *ScreenManual) Push(result bool) {
 	fmt.Printf("Released %t\n", result)
 	if result {
-		fmt.Println("long press")
+		ChangeScreen(Menu)
 		return
 	}
 
