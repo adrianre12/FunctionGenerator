@@ -91,7 +91,6 @@ func main() {
 	ConfigurePWM()
 
 	println("Running")
-	ui.TestFlash()
 
 	//sweepTest()
 
