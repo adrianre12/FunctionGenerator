@@ -87,10 +87,9 @@ func main() {
 	fgen.Init()
 	fgen.WriteErr = false
 
-	ui.Configure(fgen)
 	ConfigurePWM()
 
-	println("Running")
+	ui.Configure(fgen) //ui should be last
 
 	//sweepTest()
 

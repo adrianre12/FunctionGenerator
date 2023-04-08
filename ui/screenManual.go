@@ -23,11 +23,11 @@ func (s *ScreenManual) Setup() {
 
 	label1 := text.NewLabel(lcd, font, 0, 7, "Wave: ")
 	_, labelW := label1.LineWidth()
-	s.text1 = text.NewLabel(lcd, font, int16(labelW), 7, fmt.Sprintf("%s", Waveform))
+	s.text1 = text.NewLabel(lcd, font, int16(labelW), 7, Waveform.String())
 
 	label2 := text.NewLabel(lcd, font, 0, 17, "Freq: ")
 	_, labelW = label2.LineWidth()
-	s.text2 = text.NewLabel(lcd, font, int16(labelW), 17, fmt.Sprintf("%f", Frequency))
+	s.text2 = text.NewLabel(lcd, font, int16(labelW), 17, fmt.Sprintf("%.3f", Frequency))
 }
 
 func (s *ScreenManual) Update() {
@@ -37,12 +37,11 @@ func (s *ScreenManual) Update() {
 		Changed = false
 	}
 
-	s.text1.Write(fmt.Sprintf("%s", Waveform))
+	s.text1.Write(Waveform.String())
 	s.text2.Write(fmt.Sprintf("%.3f", Frequency))
 }
 
 func (s *ScreenManual) Push(result bool) {
-	fmt.Printf("Released %t\n", result)
 	if result {
 		ChangeScreen(Menu)
 		return
