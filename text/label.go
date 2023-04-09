@@ -16,17 +16,17 @@ type Label struct {
 	displayer drivers.Displayer
 	font      *tinyfont.Font
 	text      string
-	Invert    bool
-	X         int16
-	Y         int16
+	invert    bool
+	x         int16
+	y         int16
 }
 
-func NewLabel(displayer drivers.Displayer, font *tinyfont.Font, x int16, y int16, text string) *Label {
+func (Label) New(displayer drivers.Displayer, font *tinyfont.Font, x int16, y int16, text string) *Label {
 	t := Label{
 		displayer: displayer,
 		font:      font,
-		X:         x,
-		Y:         y,
+		x:         x,
+		y:         y,
 	}
 	t.Write(text)
 	return &t
@@ -34,15 +34,14 @@ func NewLabel(displayer drivers.Displayer, font *tinyfont.Font, x int16, y int16
 
 func (t *Label) Write(text string) {
 	fg := FG
-	bg := BG
-	if t.Invert {
+	//	bg := BG
+	if t.invert {
 		fg = BG
-		bg = FG
+		//		bg = FG
 	}
-	if len(t.text) != 0 {
-		//tinyfont.WriteLine(t.displayer, t.font, t.X, t.Y, t.text, bg)
+	/*	if len(t.text) != 0 {
 		t.Clear(bg)
-	}
+	}*/
 	t.text = text
 	tinyfont.WriteLine(t.displayer, t.font, t.X, t.Y, t.text, fg)
 }
@@ -51,7 +50,11 @@ func (t *Label) LineWidth() (innerWidth uint32, outboxWidth uint32) {
 	return tinyfont.LineWidth(t.font, t.text)
 }
 
-func (t *Label) Clear(colour color.RGBA) {
+func (t *Label) Invert(invert bool) {
+	t.invert = invert
+}
+
+/*func (t *Label) Clear(colour color.RGBA) {
 	_, outboxWidth := t.LineWidth()
 	bbox := t.font.BBox
 	var x int16
@@ -63,4 +66,4 @@ func (t *Label) Clear(colour color.RGBA) {
 			t.displayer.SetPixel(x, y, colour)
 		}
 	}
-}
+}*/

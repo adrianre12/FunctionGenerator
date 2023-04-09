@@ -12,8 +12,8 @@ const (
 
 type ScreenMenu struct {
 	selectedLine uint16
-	Text1        *text.Label
-	Text2        *text.Label
+	Text1        Field
+	Text2        Field
 }
 
 func (s *ScreenMenu) Setup() {
@@ -22,14 +22,14 @@ func (s *ScreenMenu) Setup() {
 
 	s.selectedLine = 1
 
-	text.NewLabel(lcd, font, 0, 7, "Mode")
-	s.Text1 = text.NewLabel(lcd, font, 0, 17, "Manual")
-	s.Text2 = text.NewLabel(lcd, font, 0, 27, "Sweep")
+	text.Label.New(lcd, font, 0, 7, "Mode")
+	s.Text1 = text.Label.New(lcd, font, 0, 17, "Manual")
+	s.Text2 = text.Label.New(lcd, font, 0, 27, "Sweep")
 }
 
 func (s *ScreenMenu) Update() {
-	s.Text1.Invert = s.selectedLine == 1
-	s.Text2.Invert = s.selectedLine == 2
+	s.Text1.Invert(s.selectedLine == 1)
+	s.Text2.Invert(s.selectedLine == 2)
 	s.Text1.Write("Manual")
 	s.Text2.Write("Sweep")
 }

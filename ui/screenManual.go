@@ -13,21 +13,21 @@ import (
 var ()
 
 type ScreenManual struct {
-	text1 *text.Label
-	text2 *text.Label
+	text1 Field
+	text2 Field
 }
 
 func (s *ScreenManual) Setup() {
 	font := &proggy.TinySZ8pt7b
 	lcd.ClearBuffer()
 
-	label1 := text.NewLabel(lcd, font, 0, 7, "Wave: ")
+	label1 := text.Label.New(lcd, font, 0, 7, "Wave: ")
 	_, labelW := label1.LineWidth()
-	s.text1 = text.NewLabel(lcd, font, int16(labelW), 7, Waveform.String())
+	s.text1 = text.Label.New(lcd, font, int16(labelW), 7, Waveform.String())
 
-	label2 := text.NewLabel(lcd, font, 0, 17, "Freq: ")
+	label2 := text.Label.New(lcd, font, 0, 17, "Freq: ")
 	_, labelW = label2.LineWidth()
-	s.text2 = text.NewLabel(lcd, font, int16(labelW), 17, fmt.Sprintf("%.3f", Frequency))
+	s.text2 = text.Label.New(lcd, font, int16(labelW), 17, fmt.Sprintf("%.3f", Frequency))
 }
 
 func (s *ScreenManual) Update() {

@@ -1,11 +1,9 @@
 package ui
 
-import "TinyGo/FunctionGenerator/text"
-
 type SweepMenu struct {
 	selectedLine uint16
-	Text1        *text.Label
-	Text2        *text.Label
+	Text1        Field
+	Text2        Field
 }
 
 func (s *SweepMenu) Setup() {
