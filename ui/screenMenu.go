@@ -1,19 +1,17 @@
 package ui
 
 import (
-	"TinyGo/FunctionGenerator/text"
+	"TinyGo/FunctionGenerator/lcdDisplay"
 
 	"tinygo.org/x/tinyfont/proggy"
 )
 
-const (
-	menuLines = 2
-)
-
 type ScreenMenu struct {
 	selectedLine uint16
-	Text1        Field
-	Text2        Field
+	label1       lcdDisplay.Field
+	text1        lcdDisplay.Field
+	text2        lcdDisplay.Field
+	text3        lcdDisplay.Field
 }
 
 func (s *ScreenMenu) Setup() {
@@ -22,16 +20,22 @@ func (s *ScreenMenu) Setup() {
 
 	s.selectedLine = 1
 
-	text.Label.New(lcd, font, 0, 7, "Mode")
-	s.Text1 = text.Label.New(lcd, font, 0, 17, "Manual")
-	s.Text2 = text.Label.New(lcd, font, 0, 27, "Sweep")
+	s.label1 = lcdDisplay.NewFieldStr(font, 0, 7, "Mode")
+	s.text1 = lcdDisplay.NewFieldStr(font, 0, 17, "Dummy")
+	s.text2 = lcdDisplay.NewFieldStr(font, 0, 27, "Manual")
+	s.text3 = lcdDisplay.NewFieldStr(font, 0, 37, "Sweep")
 }
 
 func (s *ScreenMenu) Update() {
-	s.Text1.Invert(s.selectedLine == 1)
-	s.Text2.Invert(s.selectedLine == 2)
-	s.Text1.Write("Manual")
-	s.Text2.Write("Sweep")
+	//s.Label1.Bold(true)
+	lcd.WriteField(s.label1)
+	s.text1.Bold(s.selectedLine == 1)
+	s.text2.Bold(s.selectedLine == 2)
+	s.text3.Bold(s.selectedLine == 3)
+
+	lcd.WriteField(s.text1)
+	lcd.WriteField(s.text2)
+	lcd.WriteField(s.text3)
 }
 
 func (s *ScreenMenu) Push(result bool) {
@@ -39,7 +43,17 @@ func (s *ScreenMenu) Push(result bool) {
 	switch s.selectedLine {
 	case 1:
 		{
+			println("Select Dummy")
+			ChangeScreen(Dummy)
+		}
+	case 2:
+		{
+			println("select Manual")
 			ChangeScreen(Manual)
+		}
+	case 3:
+		{
+			ChangeScreen(Sweep)
 		}
 	default:
 		{
@@ -54,7 +68,7 @@ func (s *ScreenMenu) Rotate(result bool) {
 	if result && s.selectedLine > 1 { //up
 		s.selectedLine--
 	}
-	if !result && s.selectedLine < menuLines { //down
+	if !result && s.selectedLine < 3 { //down
 		s.selectedLine++
 	}
 }

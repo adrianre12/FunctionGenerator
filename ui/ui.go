@@ -2,19 +2,11 @@ package ui
 
 import (
 	"TinyGo/FunctionGenerator/ad9833"
+	"TinyGo/FunctionGenerator/lcdDisplay"
 	"TinyGo/FunctionGenerator/switches"
 	"machine"
 	"time"
-
-	"tinygo.org/x/drivers"
-	"tinygo.org/x/drivers/pcd8544"
 )
-
-type Display interface {
-	drivers.Displayer
-	ClearBuffer()
-	ClearDisplay()
-}
 
 type Screen interface {
 	Setup()
@@ -24,8 +16,7 @@ type Screen interface {
 }
 
 var (
-	spi1 = machine.SPI1
-	lcd  Display
+	lcd  *lcdDisplay.Device
 	fgen *ad9833.Device
 
 	Waveform  ad9833.Mode
@@ -37,24 +28,32 @@ var (
 	displayedScreen Screen
 	Menu            *ScreenMenu
 	Manual          *ScreenManual
+	Sweep           *ScreenSweep
+	Dummy           *ScreenDummy
 )
 
 func Configure(frequencyGen *ad9833.Device) {
+	println("UI Configure")
 	fgen = frequencyGen
 	configureScreen()
 	configureKeyboard()
 }
 
 func configureScreen() {
+	println("ConfigureScreen")
+	lcd = lcdDisplay.NewDevice()
+
 	Menu = &ScreenMenu{}
+	Dummy = &ScreenDummy{}
 	Manual = &ScreenManual{}
+	Sweep = &ScreenSweep{}
 	nextScreen = nil
 	displayedScreen = Menu // inital screen
-	setupLCD()
 
 	displayedScreen.Setup()
-	lcd.Display()
 
+	lcd.Display()
+	println("pre ticker")
 	//Refresh screen periodically in a go routine
 	//go func(t1 *text.Label, t2 *text.Label) {
 	go func() {
@@ -66,6 +65,7 @@ func configureScreen() {
 				nextScreen = nil
 				displayedScreen.Setup()
 			}
+			lcd.ClearBuffer()
 			displayedScreen.Update()
 			lcd.Display()
 		}
@@ -82,31 +82,6 @@ func configureKeyboard() {
 	switches.SetupRotary(machine.GP6, machine.GP7, func(result bool) {
 		displayedScreen.Rotate(result) //have to do it via this func to avoid runtime panic
 	})
-}
-
-func setupLCD() {
-	spi1.Configure(machine.SPIConfig{
-		Frequency: 4000000,
-		LSBFirst:  false,
-		Mode:      0,
-		DataBits:  8,
-		SCK:       machine.GP10,
-		SDO:       machine.GP11,
-	})
-
-	dcPin := machine.GP14
-	dcPin.Configure(machine.PinConfig{Mode: machine.PinOutput})
-	rstPin := machine.GP15
-	rstPin.Configure(machine.PinConfig{Mode: machine.PinOutput})
-	scePin := machine.GP9
-	scePin.Configure(machine.PinConfig{Mode: machine.PinOutput})
-	lcdDevice := pcd8544.New(spi1, dcPin, rstPin, scePin)
-	lcdDevice.Configure(pcd8544.Config{})
-
-	lcdDevice.SendCommand(pcd8544.FUNCTIONSET | pcd8544.EXTENDEDINSTRUCTION)
-	lcdDevice.SendCommand(pcd8544.SETBIAS | 0x04)
-	lcd = lcdDevice //use Device interface for the rest so the lcd device can be changed.
-	lcd.ClearDisplay()
 }
 
 func ChangeScreen(screen Screen) {

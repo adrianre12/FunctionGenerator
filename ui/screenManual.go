@@ -2,7 +2,7 @@ package ui
 
 import (
 	"TinyGo/FunctionGenerator/ad9833"
-	"TinyGo/FunctionGenerator/text"
+	"TinyGo/FunctionGenerator/lcdDisplay"
 	"fmt"
 
 	"time"
@@ -13,21 +13,24 @@ import (
 var ()
 
 type ScreenManual struct {
-	text1 Field
-	text2 Field
+	label1 *lcdDisplay.FieldStr
+	label2 *lcdDisplay.FieldStr
+	text1  *lcdDisplay.FieldStr
+	text2  *lcdDisplay.FieldStr
 }
 
 func (s *ScreenManual) Setup() {
+	println("ScreenManual")
 	font := &proggy.TinySZ8pt7b
 	lcd.ClearBuffer()
 
-	label1 := text.Label.New(lcd, font, 0, 7, "Wave: ")
-	_, labelW := label1.LineWidth()
-	s.text1 = text.Label.New(lcd, font, int16(labelW), 7, Waveform.String())
+	s.label1 = lcdDisplay.NewFieldStr(font, 0, 7, "Wave: ")
+	_, labelW := lcd.LineWidth(s.label1)
+	s.text1 = lcdDisplay.NewFieldStr(font, int16(labelW), 7, Waveform.String())
 
-	label2 := text.Label.New(lcd, font, 0, 17, "Freq: ")
-	_, labelW = label2.LineWidth()
-	s.text2 = text.Label.New(lcd, font, int16(labelW), 17, fmt.Sprintf("%.3f", Frequency))
+	s.label2 = lcdDisplay.NewFieldStr(font, 0, 17, "Freq: ")
+	_, labelW = lcd.LineWidth(s.label2)
+	s.text2 = lcdDisplay.NewFieldStr(font, int16(labelW), 17, fmt.Sprintf("%.3f", Frequency))
 }
 
 func (s *ScreenManual) Update() {
@@ -37,8 +40,13 @@ func (s *ScreenManual) Update() {
 		Changed = false
 	}
 
-	s.text1.Write(Waveform.String())
-	s.text2.Write(fmt.Sprintf("%.3f", Frequency))
+	lcd.WriteField(s.label1)
+	lcd.WriteField(s.label2)
+
+	s.text1.Value = Waveform.String()
+	lcd.WriteField(s.text1)
+	s.text2.Value = fmt.Sprintf("%.3f", Frequency)
+	lcd.WriteField(s.text2)
 }
 
 func (s *ScreenManual) Push(result bool) {
