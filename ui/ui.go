@@ -9,7 +9,6 @@ import (
 )
 
 type Screen interface {
-	Setup()
 	Update()
 	Push(result bool)
 	Rotate(result bool)
@@ -26,10 +25,6 @@ var (
 	rotaryLastTime  int64
 	nextScreen      Screen
 	displayedScreen Screen
-	Menu            *ScreenMenu
-	Manual          *ScreenManual
-	Sweep           *ScreenSweep
-	Dummy           *ScreenDummy
 )
 
 func Configure(frequencyGen *ad9833.Device) {
@@ -43,17 +38,11 @@ func configureScreen() {
 	println("ConfigureScreen")
 	lcd = lcdDisplay.NewDevice()
 
-	Menu = &ScreenMenu{}
-	Dummy = &ScreenDummy{}
-	Manual = &ScreenManual{}
-	Sweep = &ScreenSweep{}
 	nextScreen = nil
-	displayedScreen = Menu // inital screen
-
-	displayedScreen.Setup()
+	displayedScreen = NewScreenMenu() // inital screen
 
 	lcd.Display()
-	println("pre ticker")
+
 	//Refresh screen periodically in a go routine
 	//go func(t1 *text.Label, t2 *text.Label) {
 	go func() {
@@ -63,7 +52,6 @@ func configureScreen() {
 			if nextScreen != nil {
 				displayedScreen = nextScreen
 				nextScreen = nil
-				displayedScreen.Setup()
 			}
 			lcd.ClearBuffer()
 			displayedScreen.Update()

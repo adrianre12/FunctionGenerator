@@ -14,22 +14,26 @@ type ScreenDummy struct {
 	text3        lcdDisplay.Field
 }
 
-func (s *ScreenDummy) Setup() {
-	println("ScreenDummy")
+func NewScreenDummy() *ScreenDummy {
+	s := ScreenDummy{}
 	font := &proggy.TinySZ8pt7b
-	lcd.ClearBuffer()
 
 	s.label1 = lcdDisplay.NewFieldStr(font, 0, 7, "Dummy")
+
+	return &s
 }
 
 func (s *ScreenDummy) Update() {
-	panic("not implemented") // TODO: Implement
+	lcd.WriteField(s.label1)
 }
 
 func (s *ScreenDummy) Push(result bool) {
-	panic("not implemented") // TODO: Implement
+	if result { //long push got to menu
+		ChangeScreen(NewScreenMenu())
+		return
+	}
 }
 
 func (s *ScreenDummy) Rotate(result bool) {
-	panic("not implemented") // TODO: Implement
+	println("rotated up ", result)
 }

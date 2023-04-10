@@ -10,8 +10,10 @@ type ScreenSweep struct {
 	text2        lcdDisplay.Field
 }
 
-func (s *ScreenSweep) Setup() {
-	panic("not implemented") // TODO: Implement
+func NewScreenSweep() *ScreenSweep {
+	s := ScreenSweep{}
+
+	return &s
 }
 
 func (s *ScreenSweep) Update() {

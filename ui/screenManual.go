@@ -19,8 +19,8 @@ type ScreenManual struct {
 	text2  *lcdDisplay.FieldStr
 }
 
-func (s *ScreenManual) Setup() {
-	println("ScreenManual")
+func NewScreenManual() *ScreenManual {
+	s := ScreenManual{}
 	font := &proggy.TinySZ8pt7b
 	lcd.ClearBuffer()
 
@@ -31,6 +31,8 @@ func (s *ScreenManual) Setup() {
 	s.label2 = lcdDisplay.NewFieldStr(font, 0, 17, "Freq: ")
 	_, labelW = lcd.LineWidth(s.label2)
 	s.text2 = lcdDisplay.NewFieldStr(font, int16(labelW), 17, fmt.Sprintf("%.3f", Frequency))
+
+	return &s
 }
 
 func (s *ScreenManual) Update() {
@@ -51,7 +53,7 @@ func (s *ScreenManual) Update() {
 
 func (s *ScreenManual) Push(result bool) {
 	if result {
-		ChangeScreen(Menu)
+		ChangeScreen(NewScreenMenu())
 		return
 	}
 

@@ -14,9 +14,9 @@ type ScreenMenu struct {
 	text3        lcdDisplay.Field
 }
 
-func (s *ScreenMenu) Setup() {
+func NewScreenMenu() *ScreenMenu {
+	s := ScreenMenu{}
 	font := &proggy.TinySZ8pt7b
-	lcd.ClearBuffer()
 
 	s.selectedLine = 1
 
@@ -24,6 +24,8 @@ func (s *ScreenMenu) Setup() {
 	s.text1 = lcdDisplay.NewFieldStr(font, 0, 17, "Dummy")
 	s.text2 = lcdDisplay.NewFieldStr(font, 0, 27, "Manual")
 	s.text3 = lcdDisplay.NewFieldStr(font, 0, 37, "Sweep")
+
+	return &s
 }
 
 func (s *ScreenMenu) Update() {
@@ -39,21 +41,18 @@ func (s *ScreenMenu) Update() {
 }
 
 func (s *ScreenMenu) Push(result bool) {
-	println("Selected line", s.selectedLine)
 	switch s.selectedLine {
 	case 1:
 		{
-			println("Select Dummy")
-			ChangeScreen(Dummy)
+			ChangeScreen(NewScreenDummy())
 		}
 	case 2:
 		{
-			println("select Manual")
-			ChangeScreen(Manual)
+			ChangeScreen(NewScreenManual())
 		}
 	case 3:
 		{
-			ChangeScreen(Sweep)
+			ChangeScreen(NewScreenSweep())
 		}
 	default:
 		{
