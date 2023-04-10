@@ -39,7 +39,7 @@ type FieldInt32 struct {
 	Format string
 }
 
-func NewFieldInt(font *tinyfont.Font, x int16, y int16, value int32) *FieldInt32 {
+func NewFieldInt32(font *tinyfont.Font, x int16, y int16, value int32) *FieldInt32 {
 	return &FieldInt32{
 		Label:  newLabel(font, x, y),
 		Value:  value,

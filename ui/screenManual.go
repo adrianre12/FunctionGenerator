@@ -69,7 +69,6 @@ func (s *ScreenManual) Push(result bool) {
 		ChangeScreen(NewScreenMenu())
 		return
 	}
-
 }
 
 func (s *ScreenManual) Rotate(increment int32) {

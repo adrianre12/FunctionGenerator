@@ -26,7 +26,7 @@ func NewScreenDummy() *ScreenDummy {
 		{Text: "two", Value: 2},
 		{Text: "three", Value: 3},
 	})
-	s.int1 = lcdDisplay.NewFieldInt(font, 0, 27, 99)
+	s.int1 = lcdDisplay.NewFieldInt32(font, 0, 27, 99)
 	s.float1 = lcdDisplay.NewFieldFloat32(font, 0, 37, 1.0)
 
 	return &s
