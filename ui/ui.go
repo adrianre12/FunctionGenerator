@@ -11,7 +11,7 @@ import (
 type Screen interface {
 	Update()
 	Push(result bool)
-	Rotate(result bool)
+	Rotate(increment int32)
 }
 
 var (
@@ -67,8 +67,8 @@ func configureKeyboard() {
 		displayedScreen.Push(result) //have to do it via this func to avoid runtime panic
 	})
 
-	switches.SetupRotary(machine.GP6, machine.GP7, func(result bool) {
-		displayedScreen.Rotate(result) //have to do it via this func to avoid runtime panic
+	switches.NewRotary(machine.GP6, machine.GP7, func(increment int32) {
+		displayedScreen.Rotate(increment) //have to do it via this func to avoid runtime panic
 	})
 }
 
@@ -76,12 +76,13 @@ func ChangeScreen(screen Screen) {
 	nextScreen = screen
 }
 
-func VaryBetween(selected int32, up bool, min int32, max int32) int32 {
-	if !up && selected > min { //down
-		selected--
+func VaryBetween(value int32, increment int32, min int32, max int32) int32 {
+	value += increment
+	if value < min { //down
+		value = min
 	}
-	if up && selected < max { //up
-		selected++
+	if value > max { //up
+		value = max
 	}
-	return selected
+	return value
 }

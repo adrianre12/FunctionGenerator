@@ -64,18 +64,18 @@ func (s *ScreenManual) Push(result bool) {
 
 }
 
-func (s *ScreenManual) Rotate(result bool) {
+func (s *ScreenManual) Rotate(increment int32) {
 	if s.selected {
 		switch s.selectedField {
 		case 1:
 			{ //mode
-				s.modeList.Selected = VaryBetween(s.modeList.Selected, result, 0, 2)
+				s.modeList.Selected = VaryBetween(s.modeList.Selected, increment, 0, 2)
 				Changed = true
 			}
 		case 2:
 			{ //frequency
 
-				s.frequency.Value = float32(VaryBetween(int32(s.frequency.Value), result, 0, 2e6))
+				s.frequency.Value = float32(VaryBetween(int32(s.frequency.Value), increment, 0, 2e6))
 				Changed = true
 			}
 		default:
@@ -85,6 +85,6 @@ func (s *ScreenManual) Rotate(result bool) {
 		}
 	} // this is not an if else
 	if !s.selected { // not selected to scroll up an down
-		s.selectedField = VaryBetween(s.selectedField, result, 1, 2)
+		s.selectedField = VaryBetween(s.selectedField, increment, 1, 2)
 	}
 }

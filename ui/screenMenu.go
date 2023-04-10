@@ -59,6 +59,6 @@ func (s *ScreenMenu) Push(result bool) {
 	}
 }
 
-func (s *ScreenMenu) Rotate(result bool) {
-	s.selectedField = VaryBetween(s.selectedField, result, 1, 3)
+func (s *ScreenMenu) Rotate(increment int32) {
+	s.selectedField = VaryBetween(s.selectedField, increment, 1, 3)
 }

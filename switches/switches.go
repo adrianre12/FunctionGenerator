@@ -61,6 +61,7 @@ type Rotary struct {
 	lastTime int64
 }
 
+// Creates a new spped sensistive rotary
 func NewRotary(pinA machine.Pin, pinB machine.Pin, callback func(increment int32)) *Rotary {
 	r := Rotary{}
 	pinA.Configure(machine.PinConfig{Mode: machine.PinInput})
@@ -86,11 +87,10 @@ func NewRotary(pinA machine.Pin, pinB machine.Pin, callback func(increment int32
 				increment = 1
 			}
 		}
-		if !p.Get() {
+		if p.Get() != pinB.Get() {
 			increment = -increment
 		}
 		r.lastTime = time.Now().UnixMilli()
-
 		callback(increment)
 	})
 

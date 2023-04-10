@@ -24,6 +24,6 @@ func (s *ScreenSweep) Push(result bool) {
 	panic("not implemented") // TODO: Implement
 }
 
-func (s *ScreenSweep) Rotate(result bool) {
+func (s *ScreenSweep) Rotate(increment int32) {
 	panic("not implemented") // TODO: Implement
 }

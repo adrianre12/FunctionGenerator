@@ -52,20 +52,20 @@ func (s *ScreenDummy) Push(result bool) {
 	}
 }
 
-func (s *ScreenDummy) Rotate(result bool) {
+func (s *ScreenDummy) Rotate(increment int32) {
 	if s.selected {
 		switch s.selectedField {
 		case 1:
 			{
-				s.list1.Selected = VaryBetween(s.list1.Selected, result, 0, 2)
+				s.list1.Selected = VaryBetween(s.list1.Selected, increment, 0, 2)
 			}
 		case 2:
 			{
-				s.int1.Value = VaryBetween(s.int1.Value, result, 0, 100)
+				s.int1.Value = VaryBetween(s.int1.Value, increment, 0, 100)
 			}
 		case 3:
 			{
-				s.float1.Value = float32(VaryBetween(int32(s.float1.Value*10), result, -10, 10)) / 10
+				s.float1.Value = float32(VaryBetween(int32(s.float1.Value*10), increment, -10, 10)) / 10
 			}
 		default:
 			{ // non selectable field
@@ -74,7 +74,7 @@ func (s *ScreenDummy) Rotate(result bool) {
 		}
 	} // this is not an if else
 	if !s.selected { // not selected to scroll up an down
-		s.selectedField = VaryBetween(s.selectedField, result, 1, 3)
+		s.selectedField = VaryBetween(s.selectedField, increment, 1, 3)
 	}
 
 }
