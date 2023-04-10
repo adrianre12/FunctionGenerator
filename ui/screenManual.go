@@ -15,6 +15,7 @@ type ScreenManual struct {
 	label1        *lcdDisplay.FieldStr
 	label2        *lcdDisplay.FieldStr
 	modeList      *lcdDisplay.FieldList
+	rangeList     *lcdDisplay.FieldList
 	frequency     *lcdDisplay.FieldFloat32
 }
 
@@ -24,16 +25,21 @@ func NewScreenManual() *ScreenManual {
 	lcd.ClearBuffer()
 
 	s.label1 = lcdDisplay.NewFieldStr(font, 0, 7, "Wave: ")
-	_, labelW := lcd.LineWidth(s.label1)
-	s.modeList = lcdDisplay.NewFieldList(font, int16(labelW), 7, []lcdDisplay.FieldListItem{
+	s.modeList = lcdDisplay.NewFieldList(font, int16(lcd.LineWidth(s.label1)), 7, []lcdDisplay.FieldListItem{
 		{Text: "Sine", Value: ad9833.MODE_SINE},
 		{Text: "Tri", Value: ad9833.MODE_TRI},
 		{Text: "Sqr", Value: ad9833.MODE_MSB2},
 	})
 
-	s.label2 = lcdDisplay.NewFieldStr(font, 0, 17, "Freq: ")
-	_, labelW = lcd.LineWidth(s.label2)
-	s.frequency = lcdDisplay.NewFieldFloat32(font, int16(labelW), 17, 0)
+	s.label2 = lcdDisplay.NewFieldStr(font, 0, 17, "Rng: ")
+	s.rangeList = lcdDisplay.NewFieldList(font, int16(lcd.LineWidth(s.label2)), 17, []lcdDisplay.FieldListItem{
+		{Text: "Hz", Value: 1},
+		{Text: "KHz", Value: 1000},
+	})
+	s.rangeList.Selected = 1
+
+	s.frequency = lcdDisplay.NewFieldFloat32(font, 0, 27, 0)
+	s.frequency.Format = "%.2f Hz"
 
 	return &s
 }
@@ -49,9 +55,11 @@ func (s *ScreenManual) Update() {
 	lcd.WriteField(s.label2)
 
 	s.modeList.Bold(s.selectedField == 1)
-	s.frequency.Bold(s.selectedField == 2)
+	s.rangeList.Bold(s.selectedField == 2)
+	s.frequency.Bold(s.selectedField == 3)
 
 	lcd.WriteField(s.modeList)
+	lcd.WriteField(s.rangeList)
 	lcd.WriteField(s.frequency)
 }
 
@@ -73,9 +81,14 @@ func (s *ScreenManual) Rotate(increment int32) {
 				Changed = true
 			}
 		case 2:
+			{ //mode
+				s.rangeList.Selected = VaryBetween(s.rangeList.Selected, increment, 0, 1)
+				Changed = true
+			}
+		case 3:
 			{ //frequency
 
-				s.frequency.Value = float32(VaryBetween(int32(s.frequency.Value), increment, 0, 2e6))
+				s.frequency.Value = float32(VaryBetween(int32(s.frequency.Value), increment*int32(s.rangeList.Value()), 0, 2e6))
 				Changed = true
 			}
 		default:
@@ -85,6 +98,6 @@ func (s *ScreenManual) Rotate(increment int32) {
 		}
 	} // this is not an if else
 	if !s.selected { // not selected to scroll up an down
-		s.selectedField = VaryBetween(s.selectedField, increment, 1, 2)
+		s.selectedField = VaryBetween(s.selectedField, increment, 1, 3)
 	}
 }

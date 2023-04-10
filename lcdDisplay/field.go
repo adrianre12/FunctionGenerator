@@ -35,35 +35,39 @@ func (fs *FieldStr) String() string {
 // -----------------------------------------------------------
 type FieldInt32 struct {
 	Label
-	Value int32
+	Value  int32
+	Format string
 }
 
 func NewFieldInt(font *tinyfont.Font, x int16, y int16, value int32) *FieldInt32 {
 	return &FieldInt32{
-		Label: newLabel(font, x, y),
-		Value: value,
+		Label:  newLabel(font, x, y),
+		Value:  value,
+		Format: "%d",
 	}
 }
 
 func (fi *FieldInt32) String() string {
-	return fmt.Sprintf("%d", fi.Value)
+	return fmt.Sprintf(fi.Format, fi.Value)
 }
 
 // -----------------------------------------------------------
 type FieldFloat32 struct {
 	Label
-	Value float32
+	Value  float32
+	Format string
 }
 
 func NewFieldFloat32(font *tinyfont.Font, x int16, y int16, value float32) *FieldFloat32 {
 	return &FieldFloat32{
-		Label: newLabel(font, x, y),
-		Value: value,
+		Label:  newLabel(font, x, y),
+		Value:  value,
+		Format: "%.2f",
 	}
 }
 
 func (ff *FieldFloat32) String() string {
-	return fmt.Sprintf("%.3f", ff.Value)
+	return fmt.Sprintf(ff.Format, ff.Value)
 }
 
 // -----------------------------------------------------------

@@ -71,12 +71,13 @@ func (d *Device) WriteField(field Field) {
 	tinyfont.WriteLine(d.device, field.Font(), field.X(), field.Y(), field.String(), fg)
 }
 
-func (d *Device) LineWidth(field Field) (innerWidth uint32, outboxWidth uint32) {
-	return tinyfont.LineWidth(field.Font(), field.String())
+func (d *Device) LineWidth(field Field) (outboxWidth uint32) {
+	_, outboxWidth = tinyfont.LineWidth(field.Font(), field.String())
+	return outboxWidth
 }
 
 func (d *Device) background(field Field, colour color.RGBA) { //this is probably slow and does too many allocations
-	_, outboxWidth := d.LineWidth(field)
+	outboxWidth := d.LineWidth(field)
 	bbox := field.Font().BBox
 	var x int16
 	var y int16

@@ -73,6 +73,7 @@ func configureKeyboard() {
 }
 
 func ChangeScreen(screen Screen) {
+	fgen.SetFrequency(0, ad9833.ADR_FREQ0) // turn off output
 	nextScreen = screen
 }
 
