@@ -7,18 +7,18 @@ import (
 )
 
 type ScreenMenu struct {
-	selectedLine uint16
-	label1       lcdDisplay.Field
-	text1        lcdDisplay.Field
-	text2        lcdDisplay.Field
-	text3        lcdDisplay.Field
+	selectedField uint16
+	label1        *lcdDisplay.FieldStr
+	text1         *lcdDisplay.FieldStr
+	text2         *lcdDisplay.FieldStr
+	text3         *lcdDisplay.FieldStr
 }
 
 func NewScreenMenu() *ScreenMenu {
 	s := ScreenMenu{}
 	font := &proggy.TinySZ8pt7b
 
-	s.selectedLine = 1
+	s.selectedField = 1
 
 	s.label1 = lcdDisplay.NewFieldStr(font, 0, 7, "Mode")
 	s.text1 = lcdDisplay.NewFieldStr(font, 0, 17, "Dummy")
@@ -31,9 +31,9 @@ func NewScreenMenu() *ScreenMenu {
 func (s *ScreenMenu) Update() {
 	//s.Label1.Bold(true)
 	lcd.WriteField(s.label1)
-	s.text1.Bold(s.selectedLine == 1)
-	s.text2.Bold(s.selectedLine == 2)
-	s.text3.Bold(s.selectedLine == 3)
+	s.text1.Bold(s.selectedField == 1)
+	s.text2.Bold(s.selectedField == 2)
+	s.text3.Bold(s.selectedField == 3)
 
 	lcd.WriteField(s.text1)
 	lcd.WriteField(s.text2)
@@ -41,7 +41,7 @@ func (s *ScreenMenu) Update() {
 }
 
 func (s *ScreenMenu) Push(result bool) {
-	switch s.selectedLine {
+	switch s.selectedField {
 	case 1:
 		{
 			ChangeScreen(NewScreenDummy())
@@ -56,7 +56,7 @@ func (s *ScreenMenu) Push(result bool) {
 		}
 	default:
 		{
-			println("Error no screen to select for", s.selectedLine)
+			println("Error no screen to select for", s.selectedField)
 		}
 
 	}
@@ -64,10 +64,10 @@ func (s *ScreenMenu) Push(result bool) {
 
 func (s *ScreenMenu) Rotate(result bool) {
 	println("Rotate", result)
-	if result && s.selectedLine > 1 { //up
-		s.selectedLine--
+	if result && s.selectedField > 1 { //up
+		s.selectedField--
 	}
-	if !result && s.selectedLine < 3 { //down
-		s.selectedLine++
+	if !result && s.selectedField < 3 { //down
+		s.selectedField++
 	}
 }

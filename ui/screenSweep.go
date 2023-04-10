@@ -6,8 +6,8 @@ import (
 
 type ScreenSweep struct {
 	selectedLine uint16
-	text1        lcdDisplay.Field
-	text2        lcdDisplay.Field
+	text1        *lcdDisplay.FieldStr
+	text2        *lcdDisplay.FieldStr
 }
 
 func NewScreenSweep() *ScreenSweep {

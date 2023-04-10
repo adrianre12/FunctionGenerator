@@ -8,10 +8,10 @@ import (
 
 type ScreenDummy struct {
 	selectedLine uint16
-	label1       lcdDisplay.Field
-	text1        lcdDisplay.Field
-	text2        lcdDisplay.Field
-	text3        lcdDisplay.Field
+	label1       *lcdDisplay.FieldStr
+	text1        *lcdDisplay.FieldStr
+	text2        *lcdDisplay.FieldStr
+	text3        *lcdDisplay.FieldStr
 }
 
 func NewScreenDummy() *ScreenDummy {
