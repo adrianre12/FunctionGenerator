@@ -3,9 +3,6 @@ package ui
 import (
 	"TinyGo/FunctionGenerator/ad9833"
 	"TinyGo/FunctionGenerator/lcdDisplay"
-	"fmt"
-
-	"time"
 
 	"tinygo.org/x/tinyfont/proggy"
 )
@@ -13,56 +10,86 @@ import (
 var ()
 
 type ScreenManual struct {
-	label1 *lcdDisplay.FieldStr
-	label2 *lcdDisplay.FieldStr
-	text1  *lcdDisplay.FieldStr
-	text2  *lcdDisplay.FieldStr
+	selectedField int32
+	selected      bool
+	label1        *lcdDisplay.FieldStr
+	label2        *lcdDisplay.FieldStr
+	modeList      *lcdDisplay.FieldList
+	frequency     *lcdDisplay.FieldFloat32
 }
 
 func NewScreenManual() *ScreenManual {
-	s := ScreenManual{}
+	s := ScreenManual{selectedField: 1}
 	font := &proggy.TinySZ8pt7b
 	lcd.ClearBuffer()
 
 	s.label1 = lcdDisplay.NewFieldStr(font, 0, 7, "Wave: ")
 	_, labelW := lcd.LineWidth(s.label1)
-	s.text1 = lcdDisplay.NewFieldStr(font, int16(labelW), 7, Waveform.String())
+	s.modeList = lcdDisplay.NewFieldList(font, int16(labelW), 7, []lcdDisplay.FieldListItem{
+		{"Sine", ad9833.MODE_SINE},
+		{"Tri", ad9833.MODE_TRI},
+		{"Sqr", ad9833.MODE_MSB2},
+	})
 
 	s.label2 = lcdDisplay.NewFieldStr(font, 0, 17, "Freq: ")
 	_, labelW = lcd.LineWidth(s.label2)
-	s.text2 = lcdDisplay.NewFieldStr(font, int16(labelW), 17, fmt.Sprintf("%.3f", Frequency))
+	s.frequency = lcdDisplay.NewFieldFloat32(font, int16(labelW), 17, 0)
 
 	return &s
 }
 
 func (s *ScreenManual) Update() {
 	if Changed {
-		fgen.SetMode(Waveform)
-		Frequency = fgen.SetFrequency(Frequency, ad9833.ADR_FREQ0)
+		fgen.SetMode(uint16(s.modeList.Value()))
+		s.frequency.Value = fgen.SetFrequency(s.frequency.Value, ad9833.ADR_FREQ0)
 		Changed = false
 	}
 
 	lcd.WriteField(s.label1)
 	lcd.WriteField(s.label2)
 
-	s.text1.Value = Waveform.String()
-	lcd.WriteField(s.text1)
-	s.text2.Value = fmt.Sprintf("%.3f", Frequency)
-	lcd.WriteField(s.text2)
+	s.modeList.Bold(s.selectedField == 1)
+	s.frequency.Bold(s.selectedField == 2)
+
+	lcd.WriteField(s.modeList)
+	lcd.WriteField(s.frequency)
 }
 
 func (s *ScreenManual) Push(result bool) {
+	s.selected = !s.selected
 	if result {
 		ChangeScreen(NewScreenMenu())
 		return
 	}
 
-	Waveform = Waveform.Next()
-	Changed = true
 }
 
 func (s *ScreenManual) Rotate(result bool) {
-	delta := time.Now().UnixMilli() - rotaryLastTime
+	if s.selected {
+		switch s.selectedField {
+		case 1:
+			{ //mode
+				s.modeList.Selected = VaryBetween(s.modeList.Selected, result, 0, 2)
+				Changed = true
+			}
+		case 2:
+			{ //frequency
+
+				s.frequency.Value = float32(VaryBetween(int32(s.frequency.Value), result, 0, 2e6))
+				Changed = true
+			}
+		default:
+			{ // non selectable field
+				s.selected = false
+			}
+		}
+	} // this is not an if else
+	if !s.selected { // not selected to scroll up an down
+		s.selectedField = VaryBetween(s.selectedField, result, 1, 2)
+	}
+
+	// frequency
+	/*delta := time.Now().UnixMilli() - rotaryLastTime
 	var increment float32
 	switch {
 	case delta < 25:
@@ -91,5 +118,5 @@ func (s *ScreenManual) Rotate(result bool) {
 		Frequency = 0
 	}
 	Changed = true
-	rotaryLastTime = time.Now().UnixMilli()
+	rotaryLastTime = time.Now().UnixMilli() */
 }

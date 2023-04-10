@@ -103,9 +103,9 @@ func (d *Device) SetPhase(phase float32, phaseReg uint16, radians bool) {
 	d.Write(phaseReg | (phaseValue & BITS12))
 }
 
-// Set the output waveform mode using the Mode enum
+// Set the output waveform mode using the Mode constants
 // SetMode(Mode_TRI)
-func (d *Device) SetMode(mode Mode) {
-	d.controlReg.replaceBits(mode.Uint16(), MODE_MASK)
+func (d *Device) SetMode(mode uint16) {
+	d.controlReg.replaceBits(mode, MODE_MASK)
 	d.Write(d.controlReg.value)
 }
