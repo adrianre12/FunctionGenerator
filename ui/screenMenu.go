@@ -7,7 +7,7 @@ import (
 )
 
 type ScreenMenu struct {
-	selectedField uint16
+	selectedField int32
 	label1        *lcdDisplay.FieldStr
 	text1         *lcdDisplay.FieldStr
 	text2         *lcdDisplay.FieldStr
@@ -15,10 +15,8 @@ type ScreenMenu struct {
 }
 
 func NewScreenMenu() *ScreenMenu {
-	s := ScreenMenu{}
+	s := ScreenMenu{selectedField: 1}
 	font := &proggy.TinySZ8pt7b
-
-	s.selectedField = 1
 
 	s.label1 = lcdDisplay.NewFieldStr(font, 0, 7, "Mode")
 	s.text1 = lcdDisplay.NewFieldStr(font, 0, 17, "Dummy")
@@ -63,11 +61,6 @@ func (s *ScreenMenu) Push(result bool) {
 }
 
 func (s *ScreenMenu) Rotate(result bool) {
-	println("Rotate", result)
-	if result && s.selectedField > 1 { //up
-		s.selectedField--
-	}
-	if !result && s.selectedField < 3 { //down
-		s.selectedField++
-	}
+	s.selectedField = VaryBetween(s.selectedField, result, 1, 3)
+	println("Rotate", result, s.selectedField)
 }

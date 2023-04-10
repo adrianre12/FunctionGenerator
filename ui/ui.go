@@ -75,3 +75,13 @@ func configureKeyboard() {
 func ChangeScreen(screen Screen) {
 	nextScreen = screen
 }
+
+func VaryBetween(selected int32, up bool, min int32, max int32) int32 {
+	if !up && selected > min { //down
+		selected--
+	}
+	if up && selected < max { //up
+		selected++
+	}
+	return selected
+}

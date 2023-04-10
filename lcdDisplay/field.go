@@ -33,19 +33,19 @@ func (fs *FieldStr) String() string {
 }
 
 // -----------------------------------------------------------
-type FieldInt struct {
+type FieldInt32 struct {
 	Label
-	Value int
+	Value int32
 }
 
-func NewFieldInt(font *tinyfont.Font, x int16, y int16, value int) *FieldInt {
-	return &FieldInt{
+func NewFieldInt(font *tinyfont.Font, x int16, y int16, value int32) *FieldInt32 {
+	return &FieldInt32{
 		Label: newLabel(font, x, y),
 		Value: value,
 	}
 }
 
-func (fi *FieldInt) String() string {
+func (fi *FieldInt32) String() string {
 	return fmt.Sprintf("%d", fi.Value)
 }
 
