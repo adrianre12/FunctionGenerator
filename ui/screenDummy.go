@@ -22,9 +22,9 @@ func NewScreenDummy() *ScreenDummy {
 	s.label1 = lcdDisplay.NewFieldStr(font, 0, 7, "Dummy")
 
 	s.list1 = lcdDisplay.NewFieldList(font, 0, 17, []lcdDisplay.FieldListItem{
-		{"One", 1},
-		{"two", 2},
-		{"three", 3},
+		{Text: "One", Value: 1},
+		{Text: "two", Value: 2},
+		{Text: "three", Value: 3},
 	})
 	s.int1 = lcdDisplay.NewFieldInt(font, 0, 27, 99)
 	s.float1 = lcdDisplay.NewFieldFloat32(font, 0, 37, 1.0)

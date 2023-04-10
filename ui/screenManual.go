@@ -26,9 +26,9 @@ func NewScreenManual() *ScreenManual {
 	s.label1 = lcdDisplay.NewFieldStr(font, 0, 7, "Wave: ")
 	_, labelW := lcd.LineWidth(s.label1)
 	s.modeList = lcdDisplay.NewFieldList(font, int16(labelW), 7, []lcdDisplay.FieldListItem{
-		{"Sine", ad9833.MODE_SINE},
-		{"Tri", ad9833.MODE_TRI},
-		{"Sqr", ad9833.MODE_MSB2},
+		{Text: "Sine", Value: ad9833.MODE_SINE},
+		{Text: "Tri", Value: ad9833.MODE_TRI},
+		{Text: "Sqr", Value: ad9833.MODE_MSB2},
 	})
 
 	s.label2 = lcdDisplay.NewFieldStr(font, 0, 17, "Freq: ")
