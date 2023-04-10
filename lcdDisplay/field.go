@@ -62,6 +62,34 @@ func NewFieldFloat32(font *tinyfont.Font, x int16, y int16, value float32) *Fiel
 	}
 }
 
-func (fi *FieldFloat32) String() string {
-	return fmt.Sprintf("%.3f", fi.Value)
+func (ff *FieldFloat32) String() string {
+	return fmt.Sprintf("%.3f", ff.Value)
+}
+
+// -----------------------------------------------------------
+
+type FieldListItem struct {
+	Text  string
+	Value uint32
+}
+
+type FieldList struct {
+	Label
+	Selected int32
+	Values   []FieldListItem
+}
+
+func NewFieldList(font *tinyfont.Font, x int16, y int16, values []FieldListItem) *FieldList {
+	return &FieldList{
+		Label:  newLabel(font, x, y),
+		Values: values,
+	}
+}
+
+func (fl *FieldList) String() string {
+	return fl.Values[fl.Selected].Text
+}
+
+func (fl *FieldList) Value() uint32 {
+	return fl.Values[fl.Selected].Value
 }

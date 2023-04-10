@@ -27,7 +27,6 @@ func NewScreenMenu() *ScreenMenu {
 }
 
 func (s *ScreenMenu) Update() {
-	//s.Label1.Bold(true)
 	lcd.WriteField(s.label1)
 	s.text1.Bold(s.selectedField == 1)
 	s.text2.Bold(s.selectedField == 2)
@@ -62,5 +61,4 @@ func (s *ScreenMenu) Push(result bool) {
 
 func (s *ScreenMenu) Rotate(result bool) {
 	s.selectedField = VaryBetween(s.selectedField, result, 1, 3)
-	println("Rotate", result, s.selectedField)
 }
