@@ -87,36 +87,4 @@ func (s *ScreenManual) Rotate(result bool) {
 	if !s.selected { // not selected to scroll up an down
 		s.selectedField = VaryBetween(s.selectedField, result, 1, 2)
 	}
-
-	// frequency
-	/*delta := time.Now().UnixMilli() - rotaryLastTime
-	var increment float32
-	switch {
-	case delta < 25:
-		{
-			increment = 50
-		}
-	case delta < 75:
-		{
-			increment = 10
-		}
-	case delta < 150:
-		{
-			increment = 5
-		}
-	default:
-		{
-			increment = 1
-		}
-	}
-	if result {
-		Frequency += increment
-	} else {
-		Frequency -= increment
-	}
-	if Frequency < 0 {
-		Frequency = 0
-	}
-	Changed = true
-	rotaryLastTime = time.Now().UnixMilli() */
 }

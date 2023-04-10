@@ -57,6 +57,46 @@ func SetupButton(pin machine.Pin, callback Callback) {
 	})
 }
 
+type Rotary struct {
+	lastTime int64
+}
+
+func NewRotary(pinA machine.Pin, pinB machine.Pin, callback func(increment int32)) *Rotary {
+	r := Rotary{}
+	pinA.Configure(machine.PinConfig{Mode: machine.PinInput})
+	pinB.Configure(machine.PinConfig{Mode: machine.PinInput})
+	pinA.SetInterrupt(machine.PinFalling, func(p machine.Pin) {
+		delta := time.Now().UnixMilli() - r.lastTime
+		var increment int32
+		switch {
+		case delta < 25:
+			{
+				increment = 50
+			}
+		case delta < 75:
+			{
+				increment = 10
+			}
+		case delta < 150:
+			{
+				increment = 5
+			}
+		default:
+			{
+				increment = 1
+			}
+		}
+		if !p.Get() {
+			increment = -increment
+		}
+		r.lastTime = time.Now().UnixMilli()
+
+		callback(increment)
+	})
+
+	return &r
+}
+
 // Calls back on rotation.
 // result: true and false indicate direction
 func SetupRotary(pinA machine.Pin, pinB machine.Pin, callback Callback) {
