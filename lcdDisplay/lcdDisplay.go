@@ -29,6 +29,7 @@ func NewDevice() (display *Device) {
 		FG:  color.RGBA{1, 1, 1, 255},
 		BG:  color.RGBA{0, 0, 0, 255},
 	}
+
 	display.spi.Configure(machine.SPIConfig{
 		Frequency: 4000000,
 		LSBFirst:  false,
@@ -36,6 +37,7 @@ func NewDevice() (display *Device) {
 		DataBits:  8,
 		SCK:       machine.GP10,
 		SDO:       machine.GP11,
+		SDI:       machine.GP12,
 	})
 
 	dcPin := machine.GP14

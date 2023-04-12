@@ -7,8 +7,6 @@ import (
 	"tinygo.org/x/tinyfont/proggy"
 )
 
-var ()
-
 type ScreenManual struct {
 	selectedField int32
 	selected      bool
@@ -45,11 +43,10 @@ func NewScreenManual() *ScreenManual {
 }
 
 func (s *ScreenManual) Update() {
-	if Changed {
-		fgen.SetMode(uint16(s.modeList.Value()))
-		s.frequency.Value = fgen.SetFrequency(s.frequency.Value, ad9833.ADR_FREQ0)
-		Changed = false
-	}
+	lcd.ClearBuffer()
+	fgen.SetMode(uint16(s.modeList.Value()))
+	s.frequency.Value = fgen.SetFrequency(s.frequency.Value, ad9833.ADR_FREQ0)
+	Changed = false
 
 	lcd.WriteField(s.label1)
 	lcd.WriteField(s.label2)
@@ -72,23 +69,21 @@ func (s *ScreenManual) Push(result bool) {
 }
 
 func (s *ScreenManual) Rotate(increment int32) {
+	Changed = true
 	if s.selected {
 		switch s.selectedField {
 		case 1:
 			{ //mode
 				s.modeList.Selected = VaryBetween(s.modeList.Selected, increment, 0, 2)
-				Changed = true
 			}
 		case 2:
 			{ //mode
 				s.rangeList.Selected = VaryBetween(s.rangeList.Selected, increment, 0, 1)
-				Changed = true
 			}
 		case 3:
 			{ //frequency
 
 				s.frequency.Value = float32(VaryBetween(int32(s.frequency.Value), increment*int32(s.rangeList.Value()), 0, 2e6))
-				Changed = true
 			}
 		default:
 			{ // non selectable field

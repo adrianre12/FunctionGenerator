@@ -33,6 +33,7 @@ func NewScreenDummy() *ScreenDummy {
 }
 
 func (s *ScreenDummy) Update() {
+	lcd.ClearBuffer()
 	s.list1.Bold(s.selectedField == 1)
 	s.int1.Bold(s.selectedField == 2)
 	s.float1.Bold(s.selectedField == 3)
@@ -53,6 +54,7 @@ func (s *ScreenDummy) Push(result bool) {
 }
 
 func (s *ScreenDummy) Rotate(increment int32) {
+	Changed = true
 	if s.selected {
 		switch s.selectedField {
 		case 1:

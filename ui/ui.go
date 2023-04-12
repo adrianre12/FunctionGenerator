@@ -20,7 +20,7 @@ var (
 
 	Waveform  ad9833.Mode
 	Frequency float32
-	Changed   bool
+	Changed   bool // indicates the screen needs updating
 
 	rotaryLastTime  int64
 	nextScreen      Screen
@@ -40,8 +40,7 @@ func configureScreen() {
 
 	nextScreen = nil
 	displayedScreen = NewScreenMenu() // inital screen
-
-	lcd.Display()
+	Changed = true
 
 	//Refresh screen periodically in a go routine
 	//go func(t1 *text.Label, t2 *text.Label) {
@@ -52,10 +51,13 @@ func configureScreen() {
 			if nextScreen != nil {
 				displayedScreen = nextScreen
 				nextScreen = nil
+				Changed = true
 			}
-			lcd.ClearBuffer()
-			displayedScreen.Update()
-			lcd.Display()
+			if Changed {
+				displayedScreen.Update()
+				lcd.Display()
+				Changed = false
+			}
 		}
 
 	}()
