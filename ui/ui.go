@@ -18,9 +18,7 @@ var (
 	lcd  *lcdDisplay.Device
 	fgen *ad9833.Device
 
-	Waveform  ad9833.Mode
-	Frequency float32
-	Changed   bool // indicates the screen needs updating
+	Changed bool // indicates the screen needs updating
 
 	rotaryLastTime  int64
 	nextScreen      Screen
@@ -28,14 +26,12 @@ var (
 )
 
 func Configure(frequencyGen *ad9833.Device) {
-	println("UI Configure")
 	fgen = frequencyGen
 	configureScreen()
 	configureKeyboard()
 }
 
 func configureScreen() {
-	println("ConfigureScreen")
 	lcd = lcdDisplay.NewDevice()
 
 	nextScreen = nil

@@ -19,7 +19,7 @@ func SerialDelayStart(t int) {
 }
 
 func main() {
-	SerialDelayStart(5)
+	//	SerialDelayStart(5)
 
 	spix := spix.NewSPIX(machine.SPI0)
 	spix.Configure(machine.SPIConfig{
@@ -29,6 +29,7 @@ func main() {
 		DataBits:  8,
 		SCK:       machine.GP18,
 		SDO:       machine.GP19,
+		SDI:       machine.GP16,
 	})
 	spix.SetCSn(machine.GP17)
 	spix.SetDatabits(16)
@@ -38,7 +39,7 @@ func main() {
 	fgen.WriteErr = false
 
 	sweep.ConfigureSweep(fgen)
-	sweep.SetPWM(0.5)
+
 	ui.Configure(fgen) //ui should be last
 
 	select {}

@@ -8,14 +8,6 @@ import (
 	"tinygo.org/x/tinyfont"
 )
 
-/*
-type Display interface {
-	drivers.Displayer
-	ClearBuffer()
-	ClearDisplay()
-}
-*/
-
 type Device struct {
 	spi    *machine.SPI
 	device *pcd8544.Device
@@ -78,16 +70,12 @@ func (d *Device) LineWidth(field Field) (outboxWidth uint32) {
 	return outboxWidth
 }
 
-func (d *Device) background(field Field, colour color.RGBA) { //this is probably slow and does too many allocations
+func (d *Device) background(field Field, colour color.RGBA) {
 	outboxWidth := d.LineWidth(field)
 	bbox := field.Font().BBox
-	var x int16
-	var y int16
-	for i := int16(0); i < int16(outboxWidth); i++ {
-		x = field.X() + i
-		for j := int16(0); j < int16(bbox[1]); j++ {
-			y = field.Y() + j + int16(bbox[3])
-			d.device.SetPixel(x, y, colour)
+	for x := int16(0); x < int16(outboxWidth); x++ {
+		for y := int16(0); y < int16(bbox[1]); y++ {
+			d.device.SetPixel(field.X()+x, field.Y()+y+int16(bbox[3]), colour)
 		}
 	}
 }

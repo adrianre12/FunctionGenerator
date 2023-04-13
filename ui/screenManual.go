@@ -29,7 +29,7 @@ func NewScreenManual() *ScreenManual {
 		{Text: "Sqr", Value: ad9833.MODE_MSB2},
 	})
 
-	s.label2 = lcdDisplay.NewFieldStr(font, 0, 17, "Rng: ")
+	s.label2 = lcdDisplay.NewFieldStr(font, 0, 17, "Range: ")
 	s.rangeList = lcdDisplay.NewFieldList(font, int16(lcd.LineWidth(s.label2)), 17, []lcdDisplay.FieldListItem{
 		{Text: "Hz", Value: 1},
 		{Text: "KHz", Value: 1000},
