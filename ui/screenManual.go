@@ -13,8 +13,9 @@ type ScreenManual struct {
 	label1        *lcdDisplay.FieldStr
 	label2        *lcdDisplay.FieldStr
 	modeList      *lcdDisplay.FieldList
-	rangeList     *lcdDisplay.FieldList
+	stepList      *lcdDisplay.FieldList
 	frequency     *lcdDisplay.FieldFloat32
+	actual        *lcdDisplay.FieldFloat32
 }
 
 func NewScreenManual() *ScreenManual {
@@ -29,35 +30,38 @@ func NewScreenManual() *ScreenManual {
 		{Text: "Sqr", Value: ad9833.MODE_MSB2},
 	})
 
-	s.label2 = lcdDisplay.NewFieldStr(font, 0, 17, "Range: ")
-	s.rangeList = lcdDisplay.NewFieldList(font, int16(lcd.LineWidth(s.label2)), 17, []lcdDisplay.FieldListItem{
+	s.label2 = lcdDisplay.NewFieldStr(font, 0, 17, "Step: ")
+	s.stepList = lcdDisplay.NewFieldList(font, int16(lcd.LineWidth(s.label2)), 17, []lcdDisplay.FieldListItem{
 		{Text: "Hz", Value: 1},
 		{Text: "KHz", Value: 1000},
 	})
-	s.rangeList.Selected = 1
+	s.stepList.Selected = 1
 
 	s.frequency = lcdDisplay.NewFieldFloat32(font, 0, 27, 0)
 	s.frequency.Format = "%.2f Hz"
 
+	s.actual = lcdDisplay.NewFieldFloat32(font, 0, 37, 0)
+	s.actual.Format = "(%.2f)"
 	return &s
 }
 
 func (s *ScreenManual) Update() {
 	lcd.ClearBuffer()
 	fgen.SetMode(uint16(s.modeList.Value()))
-	s.frequency.Value = fgen.SetFrequency(s.frequency.Value, ad9833.ADR_FREQ0)
+	s.actual.Value = fgen.SetFrequency(s.frequency.Value, ad9833.ADR_FREQ0)
 	Changed = false
 
 	lcd.WriteField(s.label1)
 	lcd.WriteField(s.label2)
 
 	s.modeList.Bold(s.selectedField == 1)
-	s.rangeList.Bold(s.selectedField == 2)
+	s.stepList.Bold(s.selectedField == 2)
 	s.frequency.Bold(s.selectedField == 3)
 
 	lcd.WriteField(s.modeList)
-	lcd.WriteField(s.rangeList)
+	lcd.WriteField(s.stepList)
 	lcd.WriteField(s.frequency)
+	lcd.WriteField(s.actual)
 }
 
 func (s *ScreenManual) Push(result bool) {
@@ -77,13 +81,13 @@ func (s *ScreenManual) Rotate(increment int32) {
 				s.modeList.Selected = VaryBetween(s.modeList.Selected, increment, 0, 2)
 			}
 		case 2:
-			{ //mode
-				s.rangeList.Selected = VaryBetween(s.rangeList.Selected, increment, 0, 1)
+			{ //step
+				s.stepList.Selected = VaryBetween(s.stepList.Selected, increment, 0, 1)
 			}
 		case 3:
 			{ //frequency
 
-				s.frequency.Value = float32(VaryBetween(int32(s.frequency.Value), increment*int32(s.rangeList.Value()), 0, 2e6))
+				s.frequency.Value = float32(VaryBetween(int32(s.frequency.Value), increment*int32(s.stepList.Value()), 0, 2e6))
 			}
 		default:
 			{ // non selectable field
