@@ -75,7 +75,18 @@ func ChangeScreen(screen Screen) {
 	nextScreen = screen
 }
 
-func VaryBetween(value int32, increment int32, min int32, max int32) int32 {
+func VaryInt32Between(value int32, increment int32, min int32, max int32) int32 {
+	value += increment
+	if value < min { //down
+		value = min
+	}
+	if value > max { //up
+		value = max
+	}
+	return value
+}
+
+func VaryFloat64Between(value float64, increment float64, min float64, max float64) float64 {
 	value += increment
 	if value < min { //down
 		value = min

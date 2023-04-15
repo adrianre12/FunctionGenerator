@@ -16,8 +16,8 @@ type ScreenSweep struct {
 	settingList *lcdDisplay.FieldList
 	modeList    *lcdDisplay.FieldList
 	rangeList   *lcdDisplay.FieldList
-	start       *lcdDisplay.FieldFloat32
-	end         *lcdDisplay.FieldFloat32
+	start       *lcdDisplay.FieldFloat64
+	end         *lcdDisplay.FieldFloat64
 	stepTime    *lcdDisplay.FieldInt32
 	steps       *lcdDisplay.FieldInt32
 	run         *lcdDisplay.FieldStr
@@ -44,9 +44,9 @@ func NewScreenSweep() *ScreenSweep {
 		{Text: "Steps", Value: 4},
 	})
 
-	s.start = lcdDisplay.NewFieldFloat32(font, 0, 37, 10)
+	s.start = lcdDisplay.NewFieldFloat64(font, 0, 37, 10)
 	s.start.Format = "%.0f Hz"
-	s.end = lcdDisplay.NewFieldFloat32(font, 0, 37, 5000)
+	s.end = lcdDisplay.NewFieldFloat64(font, 0, 37, 5000)
 	s.end.Format = "%.0f Hz"
 	s.stepTime = lcdDisplay.NewFieldInt32(font, 0, 37, 20)
 	s.stepTime.Format = "%d ms/step"
@@ -151,36 +151,36 @@ func (s *ScreenSweep) Rotate(increment int32) {
 		switch s.selectedField {
 		case 1:
 			{ //mode
-				s.modeList.Selected = VaryBetween(s.modeList.Selected, increment, 0, 2)
+				s.modeList.Selected = VaryInt32Between(s.modeList.Selected, increment, 0, 2)
 			}
 		case 2:
 			{ //setting
-				s.settingList.Selected = VaryBetween(s.settingList.Selected, increment, 0, 3)
+				s.settingList.Selected = VaryInt32Between(s.settingList.Selected, increment, 0, 3)
 			}
 		case 3:
 			{ //setting value fields
 				switch s.settingList.Value() {
 				case 1:
 					{
-						s.start.Value = float32(VaryBetween(int32(s.start.Value), increment*int32(s.rangeList.Value()), 0, int32(s.end.Value)-1))
+						s.start.Value = VaryFloat64Between(s.start.Value, float64(increment)*float64(s.rangeList.Value()), 0, float64(s.end.Value)-1)
 					}
 				case 2:
 					{
-						s.end.Value = float32(VaryBetween(int32(s.end.Value), increment*int32(s.rangeList.Value()), s.steps.Value+1, 2e6))
+						s.end.Value = VaryFloat64Between(s.end.Value, float64(increment)*float64(s.rangeList.Value()), float64(s.steps.Value+1), 2e6)
 					}
 				case 3:
 					{
-						s.stepTime.Value = VaryBetween(s.stepTime.Value, increment, 10, 1000)
+						s.stepTime.Value = VaryInt32Between(s.stepTime.Value, increment, 10, 1000)
 					}
 				case 4:
 					{
-						s.steps.Value = VaryBetween(s.steps.Value, increment, 2, 100000)
+						s.steps.Value = VaryInt32Between(s.steps.Value, increment, 2, 100000)
 					}
 				}
 			}
 		case 4:
 			{ //range
-				s.rangeList.Selected = VaryBetween(s.rangeList.Selected, increment, 0, 1)
+				s.rangeList.Selected = VaryInt32Between(s.rangeList.Selected, increment, 0, 1)
 			}
 		case 5:
 			{ // run
@@ -193,6 +193,6 @@ func (s *ScreenSweep) Rotate(increment int32) {
 		}
 	} // this is not an if else
 	if !s.selected { // not selected to scroll up an down
-		s.selectedField = VaryBetween(s.selectedField, increment, 1, 5)
+		s.selectedField = VaryInt32Between(s.selectedField, increment, 1, 5)
 	}
 }

@@ -14,8 +14,8 @@ type ScreenManual struct {
 	label2        *lcdDisplay.FieldStr
 	modeList      *lcdDisplay.FieldList
 	stepList      *lcdDisplay.FieldList
-	frequency     *lcdDisplay.FieldFloat32
-	actual        *lcdDisplay.FieldFloat32
+	frequency     *lcdDisplay.FieldFloat64
+	actual        *lcdDisplay.FieldFloat64
 }
 
 func NewScreenManual() *ScreenManual {
@@ -32,16 +32,17 @@ func NewScreenManual() *ScreenManual {
 
 	s.label2 = lcdDisplay.NewFieldStr(font, 0, 17, "Step: ")
 	s.stepList = lcdDisplay.NewFieldList(font, int16(lcd.LineWidth(s.label2)), 17, []lcdDisplay.FieldListItem{
-		{Text: "Hz", Value: 1},
-		{Text: "KHz", Value: 1000},
+		{Text: "0.01 Hz", Value: 1},
+		{Text: "Hz", Value: 100},
+		{Text: "KHz", Value: 100000},
 	})
 	s.stepList.Selected = 1
 
-	s.frequency = lcdDisplay.NewFieldFloat32(font, 0, 27, 0)
+	s.frequency = lcdDisplay.NewFieldFloat64(font, 0, 27, 0)
 	s.frequency.Format = "%.2f Hz"
 
-	s.actual = lcdDisplay.NewFieldFloat32(font, 0, 37, 0)
-	s.actual.Format = "(%.2f)"
+	s.actual = lcdDisplay.NewFieldFloat64(font, 0, 37, 0)
+	s.actual.Format = "(%.3f)"
 	return &s
 }
 
@@ -78,16 +79,16 @@ func (s *ScreenManual) Rotate(increment int32) {
 		switch s.selectedField {
 		case 1:
 			{ //mode
-				s.modeList.Selected = VaryBetween(s.modeList.Selected, increment, 0, 2)
+				s.modeList.Selected = VaryInt32Between(s.modeList.Selected, increment, 0, 2)
 			}
 		case 2:
 			{ //step
-				s.stepList.Selected = VaryBetween(s.stepList.Selected, increment, 0, 1)
+				s.stepList.Selected = VaryInt32Between(s.stepList.Selected, increment, 0, 2)
 			}
 		case 3:
 			{ //frequency
 
-				s.frequency.Value = float32(VaryBetween(int32(s.frequency.Value), increment*int32(s.stepList.Value()), 0, 2e6))
+				s.frequency.Value = VaryFloat64Between(s.frequency.Value, float64(increment)*float64(s.stepList.Value())/100, 0, 2e6)
 			}
 		default:
 			{ // non selectable field
@@ -96,6 +97,6 @@ func (s *ScreenManual) Rotate(increment int32) {
 		}
 	} // this is not an if else
 	if !s.selected { // not selected to scroll up an down
-		s.selectedField = VaryBetween(s.selectedField, increment, 1, 3)
+		s.selectedField = VaryInt32Between(s.selectedField, increment, 1, 3)
 	}
 }

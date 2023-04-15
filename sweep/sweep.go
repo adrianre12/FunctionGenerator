@@ -8,7 +8,7 @@ import (
 
 var (
 	fgen           *ad9833.Device
-	sweepFreqeuncy float32
+	sweepFreqeuncy float64
 	sweepPercent   float32
 	pwm0           = machine.PWM0
 	pwm0A          uint8
@@ -51,10 +51,10 @@ func StopSweep() {
 // steps     int32 Number of steps
 // gate     bool    If set the output will be off while not sweeping.
 // fn       func() called at the end of a sweep to update ui
-func StartSweep(mode uint16, start float32, end float32, stepTime int32, steps int32, gate bool, fn func()) {
+func StartSweep(mode uint16, start float64, end float64, stepTime int32, steps int32, gate bool, fn func()) {
 	stopSweep = false
 	fgen.SetMode(mode)
-	stepSize := (end - start) / float32(steps)
+	stepSize := (end - start) / float64(steps)
 	var stepNum float32 = 0
 	for f := start; f <= end; f += stepSize {
 		if stopSweep {

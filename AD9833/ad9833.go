@@ -80,7 +80,7 @@ func (d *Device) EnablePHASE1(enable bool) {
 // returns the actual frequency set.
 // FREQ register MSB and LSB are set using B28
 // e.g. SetFrequency(1000.0,ADR_FREQ0)
-func (d *Device) SetFrequency(freq float32, freqReg uint16) float32 {
+func (d *Device) SetFrequency(freq float64, freqReg uint16) float64 {
 	d.Write(d.controlReg.value | B28)
 	freqReg = freqReg & (ADR_FREQ0 | ADR_FREQ1)
 	//freqValue := uint32(freq * math.Pow(2, 28) / 25e6)
@@ -89,7 +89,7 @@ func (d *Device) SetFrequency(freq float32, freqReg uint16) float32 {
 
 	d.Write(freqReg | uint16(freqValue&BITS14L))
 	d.Write(freqReg | uint16((freqValue&BITS14H)>>14))
-	return float32(freqValue) / 10.73741824
+	return float64(freqValue) / 10.73741824
 }
 
 // Set the selected phase register in degrees or radians

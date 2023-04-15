@@ -71,6 +71,25 @@ func (ff *FieldFloat32) String() string {
 }
 
 // -----------------------------------------------------------
+type FieldFloat64 struct {
+	Label
+	Value  float64
+	Format string
+}
+
+func NewFieldFloat64(font *tinyfont.Font, x int16, y int16, value float64) *FieldFloat64 {
+	return &FieldFloat64{
+		Label:  newLabel(font, x, y),
+		Value:  value,
+		Format: "%.2f",
+	}
+}
+
+func (ff *FieldFloat64) String() string {
+	return fmt.Sprintf(ff.Format, ff.Value)
+}
+
+// -----------------------------------------------------------
 
 type FieldListItem struct {
 	Text  string
